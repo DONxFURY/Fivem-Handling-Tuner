@@ -3,166 +3,824 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Advanced Handling.meta Tuner</title>
+  <title>PROFESSIONAL | FiveM Handling.meta Tuner</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-    body {
-      background-color: #0a0f1c;
-      color: #00f7ff;
-      font-family: 'Orbitron', monospace;
-      padding: 30px;
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@300;400;600;700&display=swap');
+    
+    :root {
+      --primary: #00f7ff;
+      --primary-dark: #00c3cc;
+      --secondary: #ff00ea;
+      --bg-dark: #0a0f1c;
+      --bg-darker: #070b15;
+      --bg-panel: #111827;
+      --border: #00f7ff33;
+      --text: #e0f7fa;
+      --warning: #ff6f6f;
+      --success: #00ff9d;
+    }
+    
+    * {
+      box-sizing: border-box;
       margin: 0;
+      padding: 0;
     }
-    h1, h2 {
-      color: #00e0ff;
-      text-shadow: 0 0 5px #00f7ff, 0 0 10px #00f7ff;
-    }
-    .section {
-      margin-bottom: 30px;
+    
+    body {
+      background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+      color: var(--text);
+      font-family: 'Exo 2', sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
       padding: 20px;
-      background: #111827;
-      border: 1px solid #00f7ff33;
-      border-radius: 12px;
-      box-shadow: 0 0 12px #00f7ff55;
+      position: relative;
+      overflow-x: hidden;
     }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    input[type="number"], input[type="file"], input[type="text"] {
+    
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      padding: 10px;
-      background: #0a0f1c;
-      color: #00f7ff;
-      border: 1px solid #00f7ff33;
-      border-radius: 6px;
-      font-family: 'Orbitron', monospace;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 10% 20%, rgba(0, 247, 255, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(255, 0, 234, 0.05) 0%, transparent 20%);
+      pointer-events: none;
+      z-index: -1;
     }
-    .note {
-      font-size: 0.9em;
+    
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    
+    /* Header */
+    header {
+      text-align: center;
+      padding: 20px 0 40px;
+      position: relative;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .logo-icon {
+      font-size: 2.5rem;
+      color: var(--primary);
+      text-shadow: 0 0 15px var(--primary);
+      animation: pulse 2s infinite;
+    }
+    
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.2rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--primary);
+      text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+      margin: 0;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .subtitle {
+      font-size: 1.3rem;
       color: #7fd4f3;
+      max-width: 800px;
+      margin: 10px auto 0;
+      font-weight: 300;
     }
-    .output {
-      background: #0f172a;
-      padding: 15px;
-      border-radius: 10px;
-      white-space: pre-wrap;
-      font-size: 0.9em;
-    }
-    button {
-      background: #00f7ff;
-      color: #0a0f1c;
-      padding: 12px 24px;
-      border: none;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      font-family: 'Orbitron', monospace;
-      text-shadow: 0 0 2px #0a0f1c;
-      margin-top: 10px;
-    }
-    button:hover {
-      background: #00c3cc;
-    }
-    .grid {
+    
+    /* Layout */
+    .main-layout {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      grid-template-columns: 1fr 400px;
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+    
+    /* Panels */
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0, 247, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .panel::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+    
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+    
+    h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-shadow: 0 0 5px var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .panel-icon {
+      color: var(--primary);
+    }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      padding: 5px;
+      margin-bottom: 25px;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 12px 15px;
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .tab.active {
+      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+      color: var(--bg-dark);
+      box-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
+    }
+    
+    /* Form Elements */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 20px;
     }
-    .entry {
+    
+    .form-group {
       margin-bottom: 20px;
-      padding: 15px;
-      background: #0d1b2a;
-      border: 1px solid #00f7ff22;
-      border-radius: 10px;
     }
-    .warning {
-      color: #ff6f6f;
-      font-size: 0.85em;
-      margin-top: 5px;
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #a3d8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    select, input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 12px 15px;
+      background: rgba(10, 15, 28, 0.7);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Exo 2', sans-serif;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
+    }
+    
+    input[type="range"] {
+      flex: 1;
+      height: 8px;
+      -webkit-appearance: none;
+      background: rgba(10, 15, 28, 0.7);
+      border-radius: 10px;
+      outline: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--primary);
+    }
+    
+    .value-display {
+      min-width: 60px;
+      text-align: center;
+      background: rgba(0, 199, 204, 0.1);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+      color: var(--bg-dark);
+      padding: 14px 28px;
+      border: none;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 247, 255, 0.3);
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 247, 255, 0.5);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(90deg, #6c757d, #5a6268);
+    }
+    
+    .btn-warning {
+      background: linear-gradient(90deg, #ff6f6f, #ff5252);
+    }
+    
+    .btn-success {
+      background: linear-gradient(90deg, var(--success), #00cc7a);
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 25px;
+    }
+    
+    /* Visualization */
+    .visualization {
+      height: 300px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin: 30px 0;
+    }
+    
+    .car-model {
+      width: 250px;
+      height: 100px;
+      background: linear-gradient(90deg, #2c3e50, #1a2530);
+      border-radius: 15px 15px 5px 5px;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    
+    .car-top {
+      position: absolute;
+      top: -40px;
+      width: 150px;
+      height: 40px;
+      background: linear-gradient(90deg, #3498db, #2980b9);
+      border-radius: 40px 40px 0 0;
+      left: 50px;
+    }
+    
+    .wheel {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: #111;
+      border-radius: 50%;
+      border: 3px solid #333;
+      bottom: -20px;
+    }
+    
+    .wheel-front {
+      left: 30px;
+    }
+    
+    .wheel-back {
+      right: 30px;
+    }
+    
+    .wheel-disk {
+      position: absolute;
+      width: 25px;
+      height: 25px;
+      background: #444;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .suspension {
+      position: absolute;
+      width: 5px;
+      height: 60px;
+      background: #777;
+      bottom: -60px;
+    }
+    
+    .suspension-front {
+      left: 45px;
+    }
+    
+    .suspension-back {
+      right: 45px;
+    }
+    
+    .ground {
+      position: absolute;
+      bottom: -80px;
+      width: 300px;
+      height: 5px;
+      background: #555;
+      border-radius: 5px;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .stat-card {
+      background: rgba(10, 15, 28, 0.7);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin: 10px 0;
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      color: #7fd4f3;
+    }
+    
+    /* Presets */
+    .presets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .preset-card {
+      background: rgba(10, 15, 28, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .preset-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--primary);
+      box-shadow: 0 5px 15px rgba(0, 247, 255, 0.3);
+    }
+    
+    .preset-icon {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+    
+    .preset-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    
+    .preset-desc {
+      font-size: 0.85rem;
+      color: #7fd4f3;
+    }
+    
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 30px 0;
+      color: #7fd4f3;
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+    
+    /* Animations */
+    @keyframes pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    .floating {
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+      
+      h1 {
+        font-size: 2.5rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>🚗 Ultimate FiveM Handling.meta Tuner</h1>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <i class="fas fa-car-crash logo-icon floating"></i>
+        <h1>PROFESSIONAL HANDLING.META TUNER</h1>
+        <i class="fas fa-sliders-h logo-icon floating"></i>
+      </div>
+      <p class="subtitle">Advanced tuning tool for FiveM vehicle handling with real-time visualization and professional presets</p>
+    </header>
 
-  <div class="section">
-    <h2>Import Handling.meta File</h2>
-    <input type="file" id="fileInput" multiple accept=".xml,.meta" />
-    <button onclick="parseMultiple()">📥 Import & View</button>
-    <button onclick="exportCombinedXML()">📤 Export handling.meta</button>
-    <div id="combinedOutput"></div>
+    <div class="tabs">
+      <div class="tab active">Tuning Dashboard</div>
+      <div class="tab">Presets Library</div>
+      <div class="tab">Visual Analysis</div>
+      <div class="tab">Export Tools</div>
+    </div>
+
+    <div class="main-layout">
+      <div class="panel">
+        <div class="panel-header">
+          <h2><i class="fas fa-cogs panel-icon"></i> Vehicle Handling Parameters</h2>
+          <div class="input-group">
+            <select id="vehicleSelect">
+              <option>Adder (Super)</option>
+              <option selected>Entity XF (Super)</option>
+              <option>Zentorno (Super)</option>
+              <option>Banshee (Sports)</option>
+              <option>Elegy RH8 (Sports)</option>
+              <option>Sultan RS (Sports)</option>
+              <option>Dubsta 6x6 (Off-Road)</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="handlingName"><i class="fas fa-car"></i> Handling Name</label>
+            <input type="text" id="handlingName" value="ENTITYXF">
+          </div>
+          
+          <div class="form-group">
+            <label for="fMass"><i class="fas fa-weight-hanging"></i> Mass (kg)</label>
+            <div class="input-group">
+              <input type="range" id="fMass" min="500" max="5000" value="1400" step="50">
+              <div class="value-display">1400</div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="fInitialDriveForce"><i class="fas fa-horse-head"></i> Drive Force</label>
+            <div class="input-group">
+              <input type="range" id="fInitialDriveForce" min="0.1" max="2.0" value="0.36" step="0.01">
+              <div class="value-display">0.36</div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="fBrakeForce"><i class="fas fa-stop-circle"></i> Brake Force</label>
+            <div class="input-group">
+              <input type="range" id="fBrakeForce" min="0.1" max="2.0" value="0.65" step="0.01">
+              <div class="value-display">0.65</div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="fTractionCurveMax"><i class="fas fa-road"></i> Traction Max</label>
+            <div class="input-group">
+              <input type="range" id="fTractionCurveMax" min="0.5" max="3.0" value="2.6" step="0.05">
+              <div class="value-display">2.6</div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="fTractionCurveMin"><i class="fas fa-road"></i> Traction Min</label>
+            <div class="input-group">
+              <input type="range" id="fTractionCurveMin" min="0.5" max="3.0" value="2.0" step="0.05">
+              <div class="value-display">2.0</div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="fSuspensionReboundDamp"><i class="fas fa-compress-arrows-alt"></i> Suspension Rebound</label>
+            <div class="input-group">
+              <input type="range" id="fSuspensionReboundDamp" min="0.1" max="5.0" value="1.8" step="0.1">
+              <div class="value-display">1.8</div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="fSuspensionCompDamp"><i class="fas fa-compress-arrows-alt"></i> Suspension Compression</label>
+            <div class="input-group">
+              <input type="range" id="fSuspensionCompDamp" min="0.1" max="5.0" value="1.4" step="0.1">
+              <div class="value-display">1.4</div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="fTractionBiasFront"><i class="fas fa-car-side"></i> Traction Bias (Front)</label>
+            <div class="input-group">
+              <input type="range" id="fTractionBiasFront" min="0.1" max="0.9" value="0.48" step="0.01">
+              <div class="value-display">0.48</div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="fAntiRollBarForce"><i class="fas fa-car-side"></i> Anti-Roll Bar Force</label>
+            <div class="input-group">
+              <input type="range" id="fAntiRollBarForce" min="0.0" max="2.0" value="0.35" step="0.05">
+              <div class="value-display">0.35</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="btn-group">
+          <button class="btn"><i class="fas fa-download"></i> Import Meta File</button>
+          <button class="btn btn-success"><i class="fas fa-file-export"></i> Export Handling.meta</button>
+          <button class="btn btn-secondary"><i class="fas fa-save"></i> Save Profile</button>
+          <button class="btn btn-warning"><i class="fas fa-redo"></i> Reset to Default</button>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <div class="panel-header">
+          <h2><i class="fas fa-chart-line panel-icon"></i> Performance Visualization</h2>
+        </div>
+        
+        <div class="visualization">
+          <div class="car-model">
+            <div class="car-top"></div>
+            <div class="wheel wheel-front">
+              <div class="wheel-disk"></div>
+            </div>
+            <div class="wheel wheel-back">
+              <div class="wheel-disk"></div>
+            </div>
+            <div class="suspension suspension-front"></div>
+            <div class="suspension suspension-back"></div>
+            <div class="ground"></div>
+          </div>
+          
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-value">235</div>
+              <div class="stat-label">TOP SPEED (MPH)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">3.8s</div>
+              <div class="stat-label">0-60 MPH</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">A+</div>
+              <div class="stat-label">HANDLING</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">S</div>
+              <div class="stat-label">TRACTION</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel-header" style="margin-top: 30px;">
+          <h2><i class="fas fa-bolt panel-icon"></i> Quick Presets</h2>
+        </div>
+        
+        <div class="presets-grid">
+          <div class="preset-card">
+            <i class="fas fa-tachometer-alt preset-icon"></i>
+            <div class="preset-name">Race Setup</div>
+            <div class="preset-desc">Max speed, low weight</div>
+          </div>
+          <div class="preset-card">
+            <i class="fas fa-mountain preset-icon"></i>
+            <div class="preset-name">Off-Road</div>
+            <div class="preset-desc">High suspension, traction</div>
+          </div>
+          <div class="preset-card">
+            <i class="fas fa-burn preset-icon"></i>
+            <div class="preset-name">Drift Tune</div>
+            <div class="preset-desc">Low traction, RWD bias</div>
+          </div>
+          <div class="preset-card">
+            <i class="fas fa-shield-alt preset-icon"></i>
+            <div class="preset-name">Armored</div>
+            <div class="preset-desc">Heavy, high durability</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="panel">
+      <div class="panel-header">
+        <h2><i class="fas fa-file-code panel-icon"></i> Handling.meta Preview</h2>
+      </div>
+      <pre class="output" style="background: #0d1b2a; padding: 20px; border-radius: 12px; max-height: 300px; overflow: auto; font-family: monospace; font-size: 14px; line-height: 1.5;">
+&lt;Item type="CHandlingData"&gt;
+  &lt;handlingName&gt;ENTITYXF&lt;/handlingName&gt;
+  &lt;fMass value="1400.000000" /&gt;
+  &lt;fInitialDragCoeff value="85.000000" /&gt;
+  &lt;fPercentSubmerged value="85.000000" /&gt;
+  &lt;fInitialDriveForce value="0.360000" /&gt;
+  &lt;fDriveInertia value="1.000000" /&gt;
+  &lt;fInitialDriveMaxFlatVel value="160.000000" /&gt;
+  &lt;fBrakeForce value="0.650000" /&gt;
+  &lt;fBrakeBiasFront value="0.550000" /&gt;
+  &lt;fHandBrakeForce value="0.800000" /&gt;
+  &lt;fTractionCurveMax value="2.600000" /&gt;
+  &lt;fTractionCurveMin value="2.000000" /&gt;
+  &lt;fTractionCurveLateral value="22.500000" /&gt;
+  &lt;fTractionSpringDeltaMax value="0.150000" /&gt;
+  &lt;fTractionLossMult value="1.000000" /&gt;
+  &lt;fTractionBiasFront value="0.480000" /&gt;
+  &lt;fSuspensionForce value="2.400000" /&gt;
+  &lt;fSuspensionCompDamp value="1.400000" /&gt;
+  &lt;fSuspensionReboundDamp value="1.800000" /&gt;
+  &lt;fSuspensionUpperLimit value="0.150000" /&gt;
+  &lt;fSuspensionLowerLimit value="-0.180000" /&gt;
+  &lt;fSuspensionRaise value="0.000000" /&gt;
+  &lt;fSuspensionBiasFront value="0.500000" /&gt;
+  &lt;fAntiRollBarForce value="0.350000" /&gt;
+&lt;/Item&gt;
+      </pre>
+    </div>
+    
+    <footer>
+      <p>ADVANCED FIVEM HANDLING.META TUNER | VERSION 2.5.0 | &copy; 2023 PROFESSIONAL FIVEM TOOLS</p>
+      <p>This tool is designed for FiveM server administrators and vehicle mod developers. All values are simulated.</p>
+    </footer>
   </div>
 
-  <div class="section">
-    <h2>Export MASS FILE Coming Soon!</h2>
-    <button onclick="exportSingleXML()">📁 Export Mass handling.meta</button>
-  </div>
-
-<script>
-let combinedItems = [];
-
-function parseMultiple() {
-  const files = document.getElementById('fileInput').files;
-  const output = document.getElementById('combinedOutput');
-  output.innerHTML = '';
-  if (!files.length) return;
-  combinedItems = [];
-
-  Array.from(files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(e.target.result, 'text/xml');
-      const items = xml.querySelectorAll('Item[type="CHandlingData"]');
-      items.forEach((item, index) => {
-        const container = document.createElement('div');
-        container.className = 'entry';
-        container.innerHTML = `<h3>Entry ${index + 1}</h3>`;
-
-        item.childNodes.forEach(node => {
-          if (node.nodeType === 1 && node.attributes?.getNamedItem('value')) {
-            const name = node.nodeName;
-            const value = node.getAttribute('value');
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = value;
-            input.id = `${name}-${index}`;
-            const label = document.createElement('label');
-            label.textContent = name;
-            label.appendChild(input);
-            container.appendChild(label);
-          }
-        });
-
-        output.appendChild(container);
-        combinedItems.push(item.outerHTML);
+  <script>
+    // Update value displays when sliders change
+    document.querySelectorAll('input[type="range"]').forEach(slider => {
+      const display = slider.nextElementSibling;
+      display.textContent = slider.value;
+      
+      slider.addEventListener('input', () => {
+        display.textContent = slider.value;
+        updateVisualization();
+        updateMetaPreview();
       });
-    };
-    reader.readAsText(file);
-  });
-}
-
-function exportCombinedXML() {
-  if (combinedItems.length === 0) return alert('No handling entries loaded.');
-  const content = `<?xml version="1.0" encoding="UTF-8"?>\n<CHandlingDataMgr>\n  <HandlingData>\n    ${combinedItems.join('\n    ')}\n  </HandlingData>\n</CHandlingDataMgr>`;
-  const blob = new Blob([content], { type: 'application/xml' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'handling.meta';
-  a.click();
-}
-
-function exportSingleXML() {
-  const get = id => document.getElementById(id)?.value || '0';
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<CHandlingDataMgr>\n  <HandlingData>\n    <Item type="CHandlingData">\n      <handlingName>CUSTOM_TUNE</handlingName>\n      <fMass value="${get('fMass-0')}" />\n      <fInitialDragCoeff value="${get('fInitialDragCoeff-0')}" />\n      <fPercentSubmerged value="${get('fPercentSubmerged-0')}" />\n      <fInitialDriveForce value="${get('fInitialDriveForce-0')}" />\n      <fDriveInertia value="${get('fDriveInertia-0')}" />\n      <fInitialDriveMaxFlatVel value="${get('fInitialDriveMaxFlatVel-0')}" />\n      <fBrakeForce value="${get('fBrakeForce-0')}" />\n      <fHandBrakeForce value="${get('fHandBrakeForce-0')}" />\n      <fTractionCurveMax value="${get('fTractionCurveMax-0')}" />\n      <fTractionCurveMin value="${get('fTractionCurveMin-0')}" />\n      <fTractionCurveLateral value="${get('fTractionCurveLateral-0')}" />\n      <fTractionLossMult value="${get('fTractionLossMult-0')}" />\n      <fTractionBiasFront value="${get('fTractionBiasFront-0')}" />\n      <fSuspensionRaise value="${get('fSuspensionRaise-0')}" />\n      <fSuspensionBiasFront value="${get('fSuspensionBiasFront-0')}" />\n      <fSuspensionReboundDamp value="${get('fSuspensionReboundDamp-0')}" />\n      <fSuspensionCompDamp value="${get('fSuspensionCompDamp-0')}" />\n      <fAntiRollBarForce value="${get('fAntiRollBarForce-0')}" />\n    </Item>\n  </HandlingData>\n</CHandlingDataMgr>`;
-  const blob = new Blob([xml], { type: 'application/xml' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'single_handling.meta';
-  a.click();
-}
-</script>
+    });
+    
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+    
+    // Vehicle selection
+    document.getElementById('vehicleSelect').addEventListener('change', function() {
+      // In a real app, this would load the selected vehicle's data
+      document.getElementById('handlingName').value = this.value.split(' ')[0].toUpperCase();
+      updateVisualization();
+      updateMetaPreview();
+    });
+    
+    // Update visualization based on values
+    function updateVisualization() {
+      const mass = parseFloat(document.getElementById('fMass').value);
+      const driveForce = parseFloat(document.getElementById('fInitialDriveForce').value);
+      const brakeForce = parseFloat(document.getElementById('fBrakeForce').value);
+      const tractionMax = parseFloat(document.getElementById('fTractionCurveMax').value);
+      
+      // Update stats based on values (simulated)
+      document.querySelectorAll('.stat-value')[0].textContent = 
+        Math.round(180 + (driveForce * 100) + (mass < 1500 ? 30 : 0));
+      document.querySelectorAll('.stat-value')[1].textContent = 
+        (5.5 - (driveForce * 3) - (mass < 1500 ? 1.5 : 0)).toFixed(1) + 's';
+      
+      // Handling grade (simulated)
+      const handlingGrade = tractionMax > 2.3 ? 'S' : tractionMax > 2.0 ? 'A+' : 'A';
+      document.querySelectorAll('.stat-value')[2].textContent = handlingGrade;
+    }
+    
+    // Update meta preview
+    function updateMetaPreview() {
+      const metaPreview = document.querySelector('.output');
+      const handlingName = document.getElementById('handlingName').value;
+      const mass = document.getElementById('fMass').value;
+      const driveForce = document.getElementById('fInitialDriveForce').value;
+      const brakeForce = document.getElementById('fBrakeForce').value;
+      const tractionMax = document.getElementById('fTractionCurveMax').value;
+      const tractionMin = document.getElementById('fTractionCurveMin').value;
+      const suspensionRebound = document.getElementById('fSuspensionReboundDamp').value;
+      const suspensionComp = document.getElementById('fSuspensionCompDamp').value;
+      const tractionBias = document.getElementById('fTractionBiasFront').value;
+      const antiRoll = document.getElementById('fAntiRollBarForce').value;
+      
+      metaPreview.innerHTML = `&lt;Item type="CHandlingData"&gt;
+  &lt;handlingName&gt;${handlingName}&lt;/handlingName&gt;
+  &lt;fMass value="${mass}.000000" /&gt;
+  &lt;fInitialDragCoeff value="85.000000" /&gt;
+  &lt;fPercentSubmerged value="85.000000" /&gt;
+  &lt;fInitialDriveForce value="${driveForce}" /&gt;
+  &lt;fDriveInertia value="1.000000" /&gt;
+  &lt;fInitialDriveMaxFlatVel value="160.000000" /&gt;
+  &lt;fBrakeForce value="${brakeForce}" /&gt;
+  &lt;fBrakeBiasFront value="0.550000" /&gt;
+  &lt;fHandBrakeForce value="0.800000" /&gt;
+  &lt;fTractionCurveMax value="${tractionMax}" /&gt;
+  &lt;fTractionCurveMin value="${tractionMin}" /&gt;
+  &lt;fTractionCurveLateral value="22.500000" /&gt;
+  &lt;fTractionSpringDeltaMax value="0.150000" /&gt;
+  &lt;fTractionLossMult value="1.000000" /&gt;
+  &lt;fTractionBiasFront value="${tractionBias}" /&gt;
+  &lt;fSuspensionForce value="2.400000" /&gt;
+  &lt;fSuspensionCompDamp value="${suspensionComp}" /&gt;
+  &lt;fSuspensionReboundDamp value="${suspensionRebound}" /&gt;
+  &lt;fSuspensionUpperLimit value="0.150000" /&gt;
+  &lt;fSuspensionLowerLimit value="-0.180000" /&gt;
+  &lt;fSuspensionRaise value="0.000000" /&gt;
+  &lt;fSuspensionBiasFront value="0.500000" /&gt;
+  &lt;fAntiRollBarForce value="${antiRoll}" /&gt;
+&lt;/Item&gt;`;
+    }
+    
+    // Initialize
+    updateVisualization();
+  </script>
 </body>
 </html>
