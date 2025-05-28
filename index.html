@@ -150,7 +150,7 @@ function exportCombinedXML() {
   const blob = new Blob([content], { type: 'application/xml' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'combined_handling.meta';
+  a.download = 'handling.meta';
   a.click();
 }
 
