@@ -1,21 +1,19 @@
-MIT License
+Copyright (c) 2025 DonxFury
 
-Copyright (c) 2025 DON FURY
+All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This software and its source code are the intellectual property of DonxFury. You are NOT allowed to:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+- Reproduce, modify, distribute, or republish this tool or any part of its code
+- Use the code or design to create derivative works or competing tools
+- Resell or redistribute the tool as your own
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+You MAY:
+- Use the tool as-is for personal or server-side use
+- Share the official GitHub demo link with others
+
+Commercial use, reverse engineering, and code extraction are strictly prohibited.
+
+Violation of these terms may result in legal action.
+
+For licensing inquiries, contact: donxfurydev@gmail.com
