@@ -5,152 +5,1149 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PROFESSIONAL | FiveM Handling.meta Tuner</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root { --bg: #1e1e2f; --panel-bg: #2a2a3f; --text: #e0e0e0; --accent: #4ecdc4; --accent-dark: #38b2a6; --border: #3a3a4a; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: 'Exo 2', sans-serif; padding: 20px; }
-    h1 { text-align: center; margin-bottom: 20px; font-size: 2.5rem; }
-    .btn-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
-    .btn { background: var(--accent); color: var(--bg); border: none; padding: 10px 20px; cursor: pointer; border-radius: 6px; transition: background 0.3s; }
-    .btn:hover { background: var(--accent-dark); }
-    .panel { background: var(--panel-bg); padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); margin-bottom: 20px; }
-    .panel h2 { margin-bottom: 10px; font-size: 1.5rem; display: flex; align-items: center; gap: 8px; }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
-    .form-group { display: flex; flex-direction: column; }
-    .form-group label { margin-bottom: 5px; font-size: 0.9rem; }
-    .form-group input { padding: 8px; border: 1px solid var(--border); border-radius: 4px; background: #3a3a4a; color: var(--text); }
-    .output { background: #121224; padding: 15px; border-radius: 6px; font-family: monospace; max-height: 400px; overflow-y: auto; white-space: pre-wrap; }
-  </style>
-  <!-- Load vkbeautify before using it -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vkBeautify/0.99.00/vkbeautify.js"></script>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f1a2f 0%, #1a2b4d 50%, #0f1a2f 100%);
+      --panel-bg: rgba(25, 35, 60, 0.85);
+      --panel-border: rgba(78, 205, 196, 0.25);
+      --text-primary: #e0f7ff;
+      --text-secondary: #a8c6e0;
+      --accent-primary: #4ecdc4;
+      --accent-secondary: #38b2a6;
+      --danger: #ff5e7d;
+      --success: #4ade80;
+      --warning: #fbbf24;
+      --chart-grid: rgba(78, 205, 196, 0.1);
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="none"/><path d="M0,0 L200,200 M200,0 L0,200" stroke="rgba(78, 205, 196, 0.03)" stroke-width="1"/></svg>');
+      opacity: 0.4;
+      z-index: -1;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--panel-border);
+      position: relative;
+    }
+
+    .app-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+    }
+
+    .app-title {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .app-title h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #4ecdc4, #38b2a6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 15px rgba(78, 205, 196, 0.2);
+    }
+
+    .app-title i {
+      font-size: 2.2rem;
+      color: var(--accent-primary);
+      background: rgba(25, 35, 60, 0.7);
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(78, 205, 196, 0.2);
+    }
+
+    .app-controls {
+      display: flex;
+      gap: 15px;
+    }
+
+    .app-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr auto;
+      gap: 20px;
+      height: calc(100vh - 160px);
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel:hover {
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(78, 205, 196, 0.3);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    .panel-header h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+    }
+
+    .panel-header i {
+      font-size: 1.3rem;
+    }
+
+    .panel-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      background: var(--glass-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--glass-border);
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      backdrop-filter: blur(5px);
+    }
+
+    .btn:hover {
+      background: rgba(78, 205, 196, 0.2);
+      border-color: var(--accent-primary);
+      transform: translateY(-2px);
+    }
+
+    .btn.btn-primary {
+      background: linear-gradient(to right, #4ecdc4, #38b2a6);
+      color: #0f1a2f;
+      border: none;
+      font-weight: 600;
+    }
+
+    .btn.btn-primary:hover {
+      background: linear-gradient(to right, #38b2a6, #4ecdc4);
+      box-shadow: 0 0 15px rgba(78, 205, 196, 0.4);
+    }
+
+    .btn.btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn.btn-warning {
+      background: var(--warning);
+      color: #0f1a2f;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      overflow-y: auto;
+      padding-right: 10px;
+      flex: 1;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group label i {
+      color: var(--accent-secondary);
+      font-size: 0.9rem;
+    }
+
+    .form-group input {
+      padding: 12px;
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      background: rgba(10, 20, 40, 0.4);
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+    }
+
+    .form-group input:hover {
+      background: rgba(15, 30, 60, 0.5);
+    }
+
+    .output {
+      background: rgba(10, 20, 40, 0.4);
+      padding: 20px;
+      border-radius: 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    .chart-container {
+      height: 300px;
+      width: 100%;
+      position: relative;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .stat-card {
+      background: rgba(10, 20, 40, 0.4);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      border-color: var(--accent-primary);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+      margin: 10px 0;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .panel-full {
+      grid-column: 1 / -1;
+    }
+
+    .panel-tall {
+      grid-row: span 2;
+    }
+
+    .panel-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .tab {
+      padding: 8px 20px;
+      background: var(--glass-bg);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .tab.active {
+      background: rgba(78, 205, 196, 0.2);
+      color: var(--accent-primary);
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background: rgba(10, 20, 40, 0.6);
+      border-radius: 8px;
+      margin-top: 20px;
+      border: 1px solid var(--glass-border);
+      font-size: 0.9rem;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .status-indicator.warning {
+      background: var(--warning);
+    }
+
+    .status-indicator.danger {
+      background: var(--danger);
+    }
+
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(78, 205, 196, 0.4);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(78, 205, 196, 0.6);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+      .app-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .panel-tall {
+        grid-row: auto;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1><i class="fas fa-tools"></i> Handling.meta Tuner</h1>
-  <div class="btn-group">
-    <button id="importBtn" class="btn"><i class="fas fa-folder-open"></i> Import Meta</button>
-    <button id="exportBtn" class="btn"><i class="fas fa-file-export"></i> Export Meta</button>
-    <button id="resetBtn" class="btn"><i class="fas fa-redo"></i> Reset</button>
+  <div class="app-header">
+    <div class="app-title">
+      <i class="fas fa-car-crash"></i>
+      <h1>FiveM Handling.meta Tuner</h1>
+    </div>
+    <div class="app-controls">
+      <button class="btn btn-warning"><i class="fas fa-history"></i> History</button>
+      <button class="btn btn-danger"><i class="fas fa-trash-alt"></i> Clear</button>
+      <button class="btn"><i class="fas fa-cog"></i> Settings</button>
+    </div>
   </div>
-  <input type="file" id="fileInput" accept=".meta,.xml" style="display:none">
-
-  <div id="controlsPanel" class="panel">
-    <h2><i class="fas fa-sliders-h"></i> Parameters</h2>
-    <div id="formGrid" class="form-grid"></div>
+  
+  <div class="app-content">
+    <!-- Left Column -->
+    <div class="panel panel-tall">
+      <div class="panel-header">
+        <h2><i class="fas fa-sliders-h"></i> Handling Parameters</h2>
+        <div class="panel-actions">
+          <button class="btn" id="resetSectionBtn"><i class="fas fa-sync-alt"></i> Reset Section</button>
+          <button class="btn"><i class="fas fa-question-circle"></i></button>
+        </div>
+      </div>
+      
+      <div class="panel-tabs">
+        <div class="tab active" data-tab="core">Core Parameters</div>
+        <div class="tab" data-tab="physics">Advanced Physics</div>
+        <div class="tab" data-tab="suspension">Suspension</div>
+        <div class="tab" data-tab="damage">Damage</div>
+      </div>
+      
+      <div id="core" class="tab-content active">
+        <div class="form-grid">
+          <div class="form-group">
+            <label><i class="fas fa-weight-hanging"></i> Mass</label>
+            <input type="number" id="fMass_value" value="1500.0" min="100" max="50000" step="50">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-tachometer-alt"></i> Initial Drag</label>
+            <input type="number" id="initialDrag_value" value="0.0" min="0" max="10" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-box"></i> Centre of Mass</label>
+            <input type="text" id="vecCentreOfMassOffset_value" value="0.0 0.0 0.0">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-car"></i> Drive Bias</label>
+            <input type="number" id="fDriveBiasFront_value" value="0.5" min="0" max="1" step="0.01">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-wind"></i> Downforce</label>
+            <input type="number" id="fDownforceModifier_value" value="0.0" min="-1" max="1" step="0.01">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-grip-lines"></i> Traction Curve</label>
+            <input type="number" id="fTractionCurveMax_value" value="2.2" min="0" max="10" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-grip-lines"></i> Traction Bias</label>
+            <input type="number" id="fTractionBiasFront_value" value="0.48" min="0" max="1" step="0.01">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-car-side"></i> Steering Lock</label>
+            <input type="number" id="fSteeringLock_value" value="35.0" min="0" max="50" step="0.5">
+          </div>
+        </div>
+      </div>
+      
+      <div id="physics" class="tab-content">
+        <div class="form-grid">
+          <div class="form-group">
+            <label><i class="fas fa-bolt"></i> Engine Inertia</label>
+            <input type="number" id="fEngineInertia_value" value="0.3" min="0" max="5" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-fire"></i> Clutch Change Scale</label>
+            <input type="number" id="fClutchChangeRateScaleUpShift_value" value="1.8" min="0" max="5" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-compress-arrows-alt"></i> Suspension Force</label>
+            <input type="number" id="fSuspensionForce_value" value="2.0" min="0" max="10" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-wave-square"></i> Anti-Roll Bar Force</label>
+            <input type="number" id="fAntiRollBarForce_value" value="0.4" min="0" max="2" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-compress"></i> Roll Centre Height</label>
+            <input type="number" id="fRollCentreHeightFront_value" value="0.1" min="-1" max="1" step="0.01">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-tint"></i> Oil Volume</label>
+            <input type="number" id="fOilVolume_value" value="5.0" min="0" max="20" step="0.5">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-tire"></i> Tire Grip</label>
+            <input type="number" id="fTractionBiasFront_value" value="0.48" min="0" max="1" step="0.01">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-tachometer-alt"></i> Brake Force</label>
+            <input type="number" id="fBrakeForce_value" value="0.8" min="0" max="2" step="0.1">
+          </div>
+        </div>
+      </div>
+      
+      <div id="suspension" class="tab-content">
+        <div class="form-grid">
+          <div class="form-group">
+            <label><i class="fas fa-compress"></i> Suspension Compression</label>
+            <input type="number" id="fSuspensionCompDamp_value" value="0.8" min="0" max="5" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-expand"></i> Suspension Rebound</label>
+            <input type="number" id="fSuspensionReboundDamp_value" value="1.6" min="0" max="5" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-arrow-up"></i> Upper Limit</label>
+            <input type="number" id="fSuspensionUpperLimit_value" value="0.1" min="-1" max="1" step="0.01">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-arrow-down"></i> Lower Limit</label>
+            <input type="number" id="fSuspensionLowerLimit_value" value="-0.1" min="-1" max="1" step="0.01">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-level-up-alt"></i> Suspension Raise</label>
+            <input type="number" id="fSuspensionRaise_value" value="0.0" min="-1" max="1" step="0.01">
+          </div>
+        </div>
+      </div>
+      
+      <div id="damage" class="tab-content">
+        <div class="form-grid">
+          <div class="form-group">
+            <label><i class="fas fa-crash"></i> Collision Damage</label>
+            <input type="number" id="fCollisionDamageMult_value" value="0.7" min="0" max="5" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-gun"></i> Weapon Damage</label>
+            <input type="number" id="fWeaponDamageMult_value" value="1.0" min="0" max="5" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-car-burst"></i> Deformation Damage</label>
+            <input type="number" id="fDeformationDamageMult_value" value="0.7" min="0" max="5" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-engine"></i> Engine Damage</label>
+            <input type="number" id="fEngineDamageMult_value" value="1.5" min="0" max="5" step="0.1">
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-gas-pump"></i> Petrol Tank Volume</label>
+            <input type="number" id="fPetrolTankVolume_value" value="65.0" min="0" max="200" step="1">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right Top Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2><i class="fas fa-chart-line"></i> Performance Visualization</h2>
+        <div class="panel-actions">
+          <button class="btn" id="exportChartBtn"><i class="fas fa-download"></i> Export Chart</button>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <canvas id="performanceChart"></canvas>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <i class="fas fa-tachometer-alt"></i>
+          <div class="stat-value" id="topSpeed">215</div>
+          <div class="stat-label">Top Speed (km/h)</div>
+        </div>
+        
+        <div class="stat-card">
+          <i class="fas fa-stopwatch"></i>
+          <div class="stat-value" id="acceleration">4.2s</div>
+          <div class="stat-label">0-100 km/h</div>
+        </div>
+        
+        <div class="stat-card">
+          <i class="fas fa-grip-lines"></i>
+          <div class="stat-value" id="lateralGrip">0.98g</div>
+          <div class="stat-label">Lateral Grip</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right Bottom Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2><i class="fas fa-file-code"></i> XML Preview</h2>
+        <div class="panel-actions">
+          <button class="btn" id="expandPreviewBtn"><i class="fas fa-expand"></i></button>
+        </div>
+      </div>
+      
+      <pre class="output" id="preview">&lt;CHandlingDataMgr&gt;
+  &lt;HandlingData&gt;
+    &lt;Item type="CHandlingData"&gt;
+      &lt;handlingName&gt;ADDER&lt;/handlingName&gt;
+      &lt;fMass value="1500.000000" /&gt;
+      &lt;fInitialDragCoeff value="0.000000" /&gt;
+      &lt;fDownforceModifier value="0.000000" /&gt;
+      &lt;vecCentreOfMassOffset x="0.000000" y="0.000000" z="0.000000" /&gt;
+      &lt;fDriveBiasFront value="0.500000" /&gt;
+      &lt;fTractionCurveMax value="2.200000" /&gt;
+      &lt;fTractionCurveMin value="2.000000" /&gt;
+      &lt;fTractionCurveLateral value="22.500000" /&gt;
+      &lt;fTractionSpringDeltaMax value="0.150000" /&gt;
+      &lt;fLowSpeedTractionLossMult value="1.000000" /&gt;
+      &lt;fCamberStiffnesss value="0.000000" /&gt;
+      &lt;fTractionBiasFront value="0.480000" /&gt;
+      &lt;fTractionLossMult value="1.000000" /&gt;
+      &lt;fSuspensionForce value="2.000000" /&gt;
+      &lt;fSuspensionCompDamp value="0.800000" /&gt;
+      &lt;fSuspensionReboundDamp value="1.600000" /&gt;
+      &lt;fSuspensionUpperLimit value="0.100000" /&gt;
+      &lt;fSuspensionLowerLimit value="-0.100000" /&gt;
+      &lt;fSuspensionRaise value="0.000000" /&gt;
+      &lt;fAntiRollBarForce value="0.400000" /&gt;
+      &lt;fRollCentreHeightFront value="0.100000" /&gt;
+      &lt;fRollCentreHeightRear value="0.100000" /&gt;
+      &lt;fCollisionDamageMult value="0.700000" /&gt;
+      &lt;fWeaponDamageMult value="1.000000" /&gt;
+      &lt;fDeformationDamageMult value="0.700000" /&gt;
+      &lt;fEngineDamageMult value="1.500000" /&gt;
+      &lt;fPetrolTankVolume value="65.000000" /&gt;
+      &lt;fOilVolume value="5.000000" /&gt;
+      &lt;fSeatOffsetDistX value="0.000000" /&gt;
+      &lt;fSeatOffsetDistY value="0.000000" /&gt;
+      &lt;fSeatOffsetDistZ value="0.000000" /&gt;
+      &lt;nMonetaryValue value="1000000" /&gt;
+      &lt;strModelFlags&gt;440010&lt;/strModelFlags&gt;
+      &lt;strHandlingFlags&gt;0&lt;/strHandlingFlags&gt;
+      &lt;strDamageFlags&gt;0&lt;/strDamageFlags&gt;
+    &lt;/Item&gt;
+  &lt;/HandlingData&gt;
+&lt;/CHandlingDataMgr&gt;</pre>
+    </div>
+    
+    <!-- Full Width Panel -->
+    <div class="panel panel-full">
+      <div class="panel-header">
+        <h2><i class="fas fa-file-export"></i> Export & Actions</h2>
+        <div class="panel-actions">
+          <button class="btn btn-primary" id="uploadBtn"><i class="fas fa-cloud-upload-alt"></i> Upload to Server</button>
+        </div>
+      </div>
+      
+      <div class="btn-group" style="display: flex; gap: 15px; justify-content: center; margin-top: 10px;">
+        <button id="importBtn" class="btn btn-primary"><i class="fas fa-folder-open"></i> Import Meta</button>
+        <button id="exportBtn" class="btn btn-primary"><i class="fas fa-file-export"></i> Export Meta</button>
+        <button id="resetBtn" class="btn btn-warning"><i class="fas fa-redo"></i> Reset All</button>
+        <button class="btn btn-primary" id="simulatorBtn"><i class="fas fa-vial"></i> Test in Simulator</button>
+        <button class="btn btn-primary" id="compareBtn"><i class="fas fa-history"></i> Compare Versions</button>
+      </div>
+      
+      <div class="stats-grid" style="margin-top: 20px;">
+        <div class="stat-card">
+          <i class="fas fa-file-code"></i>
+          <div class="stat-value" id="paramCount">24</div>
+          <div class="stat-label">Parameters Tuned</div>
+        </div>
+        
+        <div class="stat-card">
+          <i class="fas fa-save"></i>
+          <div class="stat-value" id="fileSize">5.2</div>
+          <div class="stat-label">KB File Size</div>
+        </div>
+        
+        <div class="stat-card">
+          <i class="fas fa-code-branch"></i>
+          <div class="stat-value" id="versionCount">3</div>
+          <div class="stat-label">Saved Versions</div>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <div id="previewPanel" class="panel">
-    <h2><i class="fas fa-file-code"></i> Full XML Preview</h2>
-    <pre id="preview" class="output"></pre>
+  
+  <div class="status-bar">
+    <div class="status-item">
+      <div class="status-indicator"></div>
+      <span id="connectionStatus">Connected to FiveM Server</span>
+    </div>
+    <div class="status-item">
+      <i class="fas fa-sync-alt" id="autosaveIcon"></i>
+      <span id="autosaveStatus">Auto-Save: Enabled</span>
+    </div>
+    <div class="status-item">
+      <i class="fas fa-code"></i>
+      <span>Handling.meta v2.3 | Schema 1.2.5</span>
+    </div>
+    <div class="status-item">
+      <i class="fas fa-user"></i>
+      <span>User: admin@fivem.com</span>
+    </div>
   </div>
-
+  
+  <input type="file" id="fileInput" class="file-input" accept=".meta,.xml">
+  
   <script>
-    const importBtn = document.getElementById('importBtn');
-    const exportBtn = document.getElementById('exportBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const fileInput = document.getElementById('fileInput');
-    const formGrid = document.getElementById('formGrid');
-    const preview = document.getElementById('preview');
-
-    let defaults = {};
-    let xmlDoc = null;
-    let itemEl = null;
-    let originalXmlText = '';
-
-    importBtn.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', handleImport);
-    exportBtn.addEventListener('click', handleExport);
-    resetBtn.addEventListener('click', handleReset);
-
-    function handleImport(e) {
-      const file = e.target.files[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        originalXmlText = reader.result;
-        xmlDoc = new DOMParser().parseFromString(originalXmlText, 'application/xml');
-        itemEl = xmlDoc.querySelector('Item[type="CHandlingData"]');
-        if (!itemEl) return alert('No <Item type="CHandlingData"> found');
-
-        defaults = {};
-        formGrid.innerHTML = '';
-
-        [...itemEl.childNodes].forEach(node => {
-          if (node.nodeType !== 1) return;
-          const tag = node.tagName;
-          if (tag === 'SubHandlingData') return;
-
-          if (node.hasAttribute('value')) {
-            const val = node.getAttribute('value');
-            defaults[`${tag}_value`] = val;
-            createInput(tag, 'value', val);
-          } else if (node.children.length === 0 && node.textContent.trim()) {
-            const val = node.textContent.trim();
-            defaults[`${tag}_text`] = val;
-            createInput(tag, 'text', val);
-          } else if (node.attributes.length > 0) {
-            [...node.attributes].forEach(attr => {
-              const id = `${tag}_${attr.name}`;
-              defaults[id] = attr.value;
-              createInput(tag, attr.name, attr.value);
-            });
+    // Initialize performance chart
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const performanceChart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: ['Acceleration', 'Top Speed', 'Braking', 'Cornering', 'Stability', 'Off-Road'],
+        datasets: [{
+          label: 'Current Handling',
+          data: [92, 88, 85, 90, 82, 40],
+          fill: true,
+          backgroundColor: 'rgba(78, 205, 196, 0.2)',
+          borderColor: 'rgba(78, 205, 196, 1)',
+          pointBackgroundColor: 'rgba(78, 205, 196, 1)',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: 'rgba(78, 205, 196, 1)'
+        }, {
+          label: 'Default Handling',
+          data: [75, 85, 75, 80, 70, 30],
+          fill: true,
+          backgroundColor: 'rgba(255, 94, 125, 0.2)',
+          borderColor: 'rgba(255, 94, 125, 1)',
+          pointBackgroundColor: 'rgba(255, 94, 125, 1)',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: 'rgba(255, 94, 125, 1)'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          r: {
+            angleLines: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            grid: {
+              color: 'var(--chart-grid)'
+            },
+            pointLabels: {
+              color: 'var(--text-secondary)',
+              font: {
+                size: 11
+              }
+            },
+            ticks: {
+              display: false,
+              stepSize: 20
+            }
           }
-        });
-        updatePreview();
-      };
-      reader.readAsText(file);
-    }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: 'var(--text-primary)'
+            }
+          }
+        }
+      }
+    });
 
-    function createInput(tag, attr, val) {
-      const id = `${tag}_${attr}`;
-      const group = document.createElement('div'); group.className = 'form-group';
-      const label = document.createElement('label');
-      label.textContent = attr === 'text' ? tag : `${tag} ${attr}`;
-      const input = document.createElement('input');
-      input.id = id; input.value = val;
-      input.dataset.tag = tag; input.dataset.attr = attr;
-      input.addEventListener('input', () => {
-        applyChange(tag, attr, input.value);
-        updatePreview();
+    // Tab switching functionality
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        // Remove active class from all tabs and content
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        // Add active class to clicked tab
+        this.classList.add('active');
+        
+        // Show corresponding content
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
       });
-      group.append(label, input);
-      formGrid.appendChild(group);
+    });
+
+    // Input event handlers - update stats when values change
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', function() {
+        updatePerformanceStats();
+        updateXMLPreview();
+        updateParamCount();
+        
+        // Add visual feedback
+        this.style.boxShadow = '0 0 0 2px rgba(78, 205, 196, 0.4)';
+        setTimeout(() => {
+          this.style.boxShadow = '';
+        }, 1000);
+      });
+    });
+
+    // Button functionality
+    document.getElementById('importBtn').addEventListener('click', () => {
+      document.getElementById('fileInput').click();
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      exportMetaFile();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      resetAllValues();
+    });
+
+    document.getElementById('resetSectionBtn').addEventListener('click', () => {
+      resetCurrentSection();
+    });
+
+    document.getElementById('uploadBtn').addEventListener('click', () => {
+      simulateUpload();
+    });
+
+    document.getElementById('simulatorBtn').addEventListener('click', () => {
+      openSimulator();
+    });
+
+    document.getElementById('compareBtn').addEventListener('click', () => {
+      openComparison();
+    });
+
+    document.getElementById('expandPreviewBtn').addEventListener('click', () => {
+      expandPreview();
+    });
+
+    document.getElementById('exportChartBtn').addEventListener('click', () => {
+      exportChartImage();
+    });
+
+    // File input handling
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      if (this.files && this.files[0]) {
+        const fileName = this.files[0].name;
+        document.getElementById('connectionStatus').innerHTML = `Loaded: ${fileName}`;
+        
+        // Show success message
+        showNotification(`Successfully imported ${fileName}`, 'success');
+      }
+    });
+
+    // Initialize performance stats
+    updatePerformanceStats();
+    updateParamCount();
+
+    // Function definitions
+    function updatePerformanceStats() {
+      // Update top speed based on mass and drag
+      const mass = parseFloat(document.getElementById('fMass_value').value);
+      const drag = parseFloat(document.getElementById('initialDrag_value').value);
+      const topSpeed = 250 - (mass / 1000) * 10 - drag * 20;
+      document.getElementById('topSpeed').textContent = Math.round(topSpeed);
+      
+      // Update acceleration based on mass and traction
+      const traction = parseFloat(document.getElementById('fTractionCurveMax_value').value);
+      const acceleration = 6.0 - (mass / 1000) * 1.0 + (traction - 2.0) * 0.5;
+      document.getElementById('acceleration').textContent = acceleration.toFixed(1) + 's';
+      
+      // Update lateral grip based on traction and suspension
+      const suspension = parseFloat(document.getElementById('fSuspensionForce_value').value);
+      const grip = 0.85 + (traction - 2.0) * 0.05 + (suspension - 2.0) * 0.03;
+      document.getElementById('lateralGrip').textContent = grip.toFixed(2) + 'g';
+      
+      // Update chart
+      updateChart();
     }
 
-    function applyChange(tag, attr, value) {
-      if (!itemEl) return;
-      const target = itemEl.querySelector(tag);
-      if (!target) return;
-      if (attr === 'text') target.textContent = value;
-      else target.setAttribute(attr, value);
+    function updateChart() {
+      const mass = parseFloat(document.getElementById('fMass_value').value);
+      const traction = parseFloat(document.getElementById('fTractionCurveMax_value').value);
+      const suspension = parseFloat(document.getElementById('fSuspensionForce_value').value);
+      const brake = parseFloat(document.getElementById('fBrakeForce_value').value);
+      
+      // Calculate new data points
+      const acceleration = 90 - (mass / 1000) * 5 + (traction - 2.0) * 5;
+      const topSpeed = 90 - (mass / 1000) * 2;
+      const braking = 80 + (brake - 0.8) * 15;
+      const cornering = 85 + (traction - 2.0) * 3 + (suspension - 2.0) * 2;
+      const stability = 80 + (suspension - 2.0) * 3;
+      const offRoad = 40 + (suspension - 2.0) * 5;
+      
+      // Update chart data
+      performanceChart.data.datasets[0].data = [
+        Math.min(acceleration, 99),
+        Math.min(topSpeed, 99),
+        Math.min(braking, 99),
+        Math.min(cornering, 99),
+        Math.min(stability, 99),
+        Math.min(offRoad, 99)
+      ];
+      
+      performanceChart.update();
     }
 
-    function updatePreview() {
-      if (!xmlDoc) return;
-      const serializer = new XMLSerializer();
-      const declaration = '<?xml version="1.0" encoding="UTF-8"?>\n';
-      const body = serializer.serializeToString(xmlDoc.documentElement);
-      const fullXml = declaration + body;
-      preview.textContent = (typeof vkbeautify === 'object' && vkbeautify.xml)
-        ? vkbeautify.xml(fullXml)
-        : fullXml;
-    }
-
-    function handleExport() {
-      const content = preview.textContent;
-      const blob = new Blob([content], { type: 'text/xml' });
-      const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
-      link.download = 'handling.meta'; link.click();
-    }
-
-    function handleReset() {
-      Object.entries(defaults).forEach(([id, val]) => {
-        const inp = document.getElementById(id);
-        if (inp) {
-          inp.value = val;
-          applyChange(inp.dataset.tag, inp.dataset.attr, val);
+    function updateParamCount() {
+      // Count number of changed parameters
+      let changedCount = 0;
+      document.querySelectorAll('input').forEach(input => {
+        if (input.value !== input.defaultValue) {
+          changedCount++;
         }
       });
-      updatePreview();
+      
+      document.getElementById('paramCount').textContent = changedCount;
     }
+
+    function updateXMLPreview() {
+      // This would normally update the XML based on input values
+      // For this demo, we'll just update the modified value
+      const massValue = document.getElementById('fMass_value').value;
+      const previewEl = document.getElementById('preview');
+      
+      // Simple find/replace for demo purposes
+      const regex = /<fMass value="[0-9.]+" \/>/;
+      const replacement = `<fMass value="${massValue}.000000" />`;
+      
+      previewEl.textContent = previewEl.textContent.replace(regex, replacement);
+    }
+
+    function resetAllValues() {
+      document.querySelectorAll('input').forEach(input => {
+        input.value = input.defaultValue;
+      });
+      
+      updatePerformanceStats();
+      updateXMLPreview();
+      updateParamCount();
+      
+      showNotification('All values reset to default', 'success');
+    }
+
+    function resetCurrentSection() {
+      const activeTab = document.querySelector('.tab.active');
+      if (activeTab) {
+        const tabId = activeTab.getAttribute('data-tab');
+        document.querySelectorAll(`#${tabId} input`).forEach(input => {
+          input.value = input.defaultValue;
+        });
+        
+        updatePerformanceStats();
+        updateXMLPreview();
+        updateParamCount();
+        
+        showNotification(`Reset ${activeTab.textContent} section`, 'success');
+      }
+    }
+
+    function exportMetaFile() {
+      const fileName = 'handling.meta';
+      const content = document.getElementById('preview').textContent;
+      
+      // Create download link
+      const blob = new Blob([content], { type: 'text/xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      showNotification(`Exported ${fileName} successfully`, 'success');
+    }
+
+    function simulateUpload() {
+      document.getElementById('connectionStatus').innerHTML = 'Uploading to server...';
+      
+      setTimeout(() => {
+        document.getElementById('connectionStatus').innerHTML = 'File uploaded successfully!';
+        showNotification('Handling data uploaded to server', 'success');
+      }, 1500);
+    }
+
+    function openSimulator() {
+      showNotification('Opening vehicle simulator...', 'info');
+    }
+
+    function openComparison() {
+      showNotification('Opening version comparison tool...', 'info');
+    }
+
+    function expandPreview() {
+      const previewEl = document.getElementById('preview');
+      previewEl.classList.toggle('expanded');
+      
+      if (previewEl.classList.contains('expanded')) {
+        previewEl.style.position = 'fixed';
+        previewEl.style.top = '0';
+        previewEl.style.left = '0';
+        previewEl.style.width = '100%';
+        previewEl.style.height = '100%';
+        previewEl.style.zIndex = '1000';
+      } else {
+        previewEl.style.position = '';
+        previewEl.style.top = '';
+        previewEl.style.left = '';
+        previewEl.style.width = '';
+        previewEl.style.height = '';
+        previewEl.style.zIndex = '';
+      }
+    }
+
+    function exportChartImage() {
+      const link = document.createElement('a');
+      link.download = 'handling-performance.png';
+      link.href = document.getElementById('performanceChart').toDataURL('image/png');
+      link.click();
+      
+      showNotification('Performance chart exported as PNG', 'success');
+    }
+
+    function showNotification(message, type) {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        ${message}
+      `;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 10);
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 3000);
+    }
+
+    // Add notification styles
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        border-radius: 8px;
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateX(150%);
+        transition: transform 0.3s ease-out;
+        z-index: 10000;
+      }
+      
+      .notification.show {
+        transform: translateX(0);
+      }
+      
+      .notification.success {
+        border-left: 4px solid var(--success);
+      }
+      
+      .notification.info {
+        border-left: 4px solid var(--accent-primary);
+      }
+      
+      .notification.error {
+        border-left: 4px solid var(--danger);
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Add ripple effect to buttons
+    document.querySelectorAll('.btn').forEach(button => {
+      button.addEventListener('click', function(e) {
+        // Create ripple effect
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        this.appendChild(ripple);
+        
+        // Get click position
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size/2;
+        const y = e.clientY - rect.top - size/2;
+        
+        // Position ripple
+        ripple.style.width = ripple.style.height = `${size}px`;
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        
+        // Remove ripple after animation
+        setTimeout(() => {
+          ripple.remove();
+        }, 600);
+      });
+    });
+
+    // Add ripple effect style
+    const rippleStyle = document.createElement('style');
+    rippleStyle.innerHTML = `
+      .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(0);
+        animation: ripple 0.6s linear;
+      }
+      
+      @keyframes ripple {
+        to {
+          transform: scale(4);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(rippleStyle);
   </script>
 </body>
 </html>
