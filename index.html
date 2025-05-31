@@ -1646,10 +1646,11 @@
         resetCurrentSection();
       });
 
+    // UPDATED: Upload button now calls uploadToDiscord() instead of simulateUpload()
     document
       .getElementById("uploadBtn")
       .addEventListener("click", () => {
-        simulateUpload();
+        uploadToDiscord();
       });
 
     document
@@ -2306,6 +2307,43 @@
       }, 1500);
     }
 
+    // ────────────────────────────────────────────────────────────────────────────
+    // NEW: Upload to Discord via webhook
+    // ────────────────────────────────────────────────────────────────────────────
+    async function uploadToDiscord() {
+      const webhookURL = "https://discord.com/api/webhooks/1378444335456194640/8bxTkr5Htoh6daiX2XOeEUY_S5sQlkJzhTd0qFrOjPha8Xkd-0GkIYi6bhGsKWEcFnwZ";
+      const xmlContent = document.getElementById("preview").textContent;
+      const xmlBlob = new Blob([xmlContent], { type: "text/xml" });
+
+      const form = new FormData();
+      form.append("file", xmlBlob, "handling.meta");
+
+      const payload = {
+        content: "📥 New handling.meta uploaded by tuner",
+        username: "FiveM Tuner Bot"
+      };
+      form.append("payload_json", JSON.stringify(payload));
+
+      try {
+        const response = await fetch(webhookURL, {
+          method: "POST",
+          body: form
+        });
+
+        if (response.ok) {
+          document.getElementById("connectionStatus").innerText =
+            "Uploaded to Discord webhook successfully!";
+          showNotification("Uploaded to Discord ✅", "success");
+        } else {
+          console.error("Discord webhook error:", response.status, await response.text());
+          showNotification("Failed to upload to Discord ❌", "error");
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+        showNotification("Upload to Discord failed ❌", "error");
+      }
+    }
+
     function openSimulator() {
       window.open("", "_blank").document.write(`
         <html><body style="background:#0f1a2f;color:#e0f7ff;display:flex;justify-content:center;align-items:center;height:100vh;">
@@ -2532,7 +2570,7 @@
         const older = versionHistory[lastIdx - 1].xml.split("\n");
         const newer = versionHistory[lastIdx].xml.split("\n");
 
-        // Build a simple diff: 
+        // Build a simple diff:
         //   If line is same → show normally,
         //   If different → prefix "< " for older, "> " for newer.
         let diffText = "";
