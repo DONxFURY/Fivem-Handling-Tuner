@@ -469,7 +469,7 @@
     }
 
     /* -------------------------------------------------------
-       Modals (History, Settings, Compare)
+       Modals (History, Settings, Compare, Simulator)
     ------------------------------------------------------- */
     .modal-overlay {
       position: fixed;
@@ -489,7 +489,7 @@
       border: 1px solid var(--panel-border);
       border-radius: 12px;
       width: 90%;
-      max-width: 700px;
+      max-width: 800px;
       max-height: 80%;
       overflow-y: auto;
       padding: 20px;
@@ -555,6 +555,29 @@
 
     .modal-close:hover {
       color: var(--danger);
+    }
+
+    /* -------------------------------------------------------
+       Simulator Canvas & Controls
+    ------------------------------------------------------- */
+    #simulatorCanvas {
+      background: #0f1a2f;
+      border: 1px solid var(--glass-border);
+      display: block;
+      margin: 0 auto 15px auto;
+    }
+
+    .sim-controls {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+
+    .sim-status {
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -1336,7 +1359,7 @@
       <div class="panel-header">
         <h2><i class="fas fa-file-export"></i> Export & Actions</h2>
         <div class="panel-actions">
-          <button class="btn btn-primary" id="uploadBtn"><i class="fas fa-cloud-upload-alt"></i> Upload to Server</button>
+          <button class="btn btn-primary" id="uploadBtn"><i class="fas fa-cloud-upload-alt"></i> Upload to Discord</button>
         </div>
       </div>
 
@@ -1374,7 +1397,7 @@
   <div class="status-bar">
     <div class="status-item">
       <div class="status-indicator"></div>
-      <span id="connectionStatus">Connected to FiveM Server</span>
+      <span id="connectionStatus">Connected to Discord</span>
     </div>
     <div class="status-item">
       <i class="fas fa-sync-alt" id="autosaveIcon"></i>
@@ -1442,6 +1465,22 @@
     </div>
   </div>
 
+  <!-- ─────────────────────────────────────────────────────────────────────────────────────
+       SIMULATOR MODAL
+  ───────────────────────────────────────────────────────────────────────────────────── -->
+  <div id="simulatorModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close" id="simulatorCloseBtn">&times;</button>
+      <h3><i class="fas fa-car"></i> Vehicle Simulator</h3>
+      <canvas id="simulatorCanvas" width="760" height="300"></canvas>
+      <div class="sim-controls">
+        <button class="btn btn-primary" id="simStartBtn"><i class="fas fa-play"></i> Start</button>
+        <button class="btn btn-warning" id="simResetBtn"><i class="fas fa-undo"></i> Reset</button>
+      </div>
+      <div class="sim-status" id="simStatus">Speed: 0 km/h &nbsp;&nbsp; Distance: 0.00 km</div>
+    </div>
+  </div>
+
   <script>
     // ────────────────────────────────────────────────────────────────────────────
     // Global State
@@ -1477,6 +1516,21 @@
       // Clamp between 0 and 500
       topSpeed = Math.max(0, Math.min(topSpeed, 500));
       return topSpeed;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // computeAccelerationTime(): time to go 0–100 km/h
+    // Formula: (mass / (traction * 100)) + 2.5, clamped [2s, 15s]
+    // ────────────────────────────────────────────────────────────────────────────
+    function computeAccelerationTime() {
+      const traction = parseFloat(
+        document.getElementById("fTractionCurveMax_value").value || "0"
+      );
+      const mass = parseFloat(
+        document.getElementById("fMass_value").value || "0"
+      );
+      let accel = traction > 0 ? mass / (traction * 100) + 2.5 : 15;
+      return Math.max(2, Math.min(accel, 15));
     }
 
     // ────────────────────────────────────────────────────────────────────────────
@@ -1646,7 +1700,6 @@
         resetCurrentSection();
       });
 
-    // UPDATED: Upload button now calls uploadToDiscord() instead of simulateUpload()
     document
       .getElementById("uploadBtn")
       .addEventListener("click", () => {
@@ -1656,7 +1709,7 @@
     document
       .getElementById("simulatorBtn")
       .addEventListener("click", () => {
-        openSimulator();
+        openSimulatorModal();
       });
 
     document
@@ -2296,19 +2349,8 @@
       document.getElementById("versionCount").textContent = versionHistory.length;
     }
 
-    function simulateUpload() {
-      document.getElementById("connectionStatus").innerHTML =
-        "Uploading to server...";
-      setTimeout(() => {
-        document.getElementById(
-          "connectionStatus"
-        ).innerHTML = "File uploaded successfully!";
-        showNotification("Handling data uploaded to server", "success");
-      }, 1500);
-    }
-
     // ────────────────────────────────────────────────────────────────────────────
-    // NEW: Upload to Discord via webhook
+    // Upload to Discord via webhook
     // ────────────────────────────────────────────────────────────────────────────
     async function uploadToDiscord() {
       const webhookURL = "https://discord.com/api/webhooks/1378444335456194640/8bxTkr5Htoh6daiX2XOeEUY_S5sQlkJzhTd0qFrOjPha8Xkd-0GkIYi6bhGsKWEcFnwZ";
@@ -2344,147 +2386,117 @@
       }
     }
 
-    function openSimulator() {
-      window.open("", "_blank").document.write(`
-        <html><body style="background:#0f1a2f;color:#e0f7ff;display:flex;justify-content:center;align-items:center;height:100vh;">
-        <h2>Vehicle Simulator Placeholder<br><small>(Implement your simulator here)</small></h2>
-        </body></html>
-      `);
-      showNotification("Opening vehicle simulator...", "info");
+    // ────────────────────────────────────────────────────────────────────────────
+    // Helpers for Simulator Modal
+    // ────────────────────────────────────────────────────────────────────────────
+    let simRequestId = null;
+    let simStartTime = null;
+    let simPaused = true;
+    let simSpeed = 0;        // km/h
+    let simDistance = 0;     // km
+    let simPrevTimestamp = null;
+
+    function openSimulatorModal() {
+      document.getElementById("simulatorCanvas").style.display = "block";
+      document.getElementById("simulatorModal").style.display = "flex";
+      resetSimulation();
     }
 
-    function expandPreview() {
-      const previewEl = document.getElementById("preview");
-      previewEl.classList.toggle("expanded");
-      if (previewEl.classList.contains("expanded")) {
-        previewEl.style.position = "fixed";
-        previewEl.style.top = "0";
-        previewEl.style.left = "0";
-        previewEl.style.width = "100%";
-        previewEl.style.height = "100%";
-        previewEl.style.zIndex = "1000";
-      } else {
-        previewEl.style.position = "";
-        previewEl.style.top = "";
-        previewEl.style.left = "";
-        previewEl.style.width = "";
-        previewEl.style.height = "";
-        previewEl.style.zIndex = "";
+    function closeSimulatorModal() {
+      document.getElementById("simulatorModal").style.display = "none";
+      cancelAnimationFrame(simRequestId);
+      simPaused = true;
+    }
+
+    function resetSimulation() {
+      simPaused = true;
+      simSpeed = 0;
+      simDistance = 0;
+      simStartTime = null;
+      simPrevTimestamp = null;
+      updateSimStatus();
+      clearCanvas();
+    }
+
+    function updateSimStatus() {
+      const statusEl = document.getElementById("simStatus");
+      statusEl.textContent = `Speed: ${simSpeed.toFixed(1)} km/h   Distance: ${simDistance.toFixed(2)} km`;
+    }
+
+    function clearCanvas() {
+      const canvas = document.getElementById("simulatorCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawCar(xPos) {
+      const canvas = document.getElementById("simulatorCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#4ecdc4";
+      ctx.strokeStyle = "#38b2a6";
+      ctx.lineWidth = 2;
+      // Car represented as a rectangle with wheels
+      ctx.fillRect(xPos, canvas.height / 2 - 15, 60, 30);
+      ctx.strokeRect(xPos, canvas.height / 2 - 15, 60, 30);
+      // Wheels
+      ctx.fillStyle = "#0f1a2f";
+      ctx.fillRect(xPos + 8, canvas.height / 2 + 12, 12, 5);
+      ctx.fillRect(xPos + 40, canvas.height / 2 + 12, 12, 5);
+    }
+
+    function simulateFrame(timestamp) {
+      if (!simStartTime) {
+        simStartTime = timestamp;
+        simPrevTimestamp = timestamp;
+      }
+      const dt = (timestamp - simPrevTimestamp) / 1000; // seconds elapsed since last frame
+      simPrevTimestamp = timestamp;
+
+      // 1) Compute acceleration (km/h per second) based on 0–100 time
+      const accelTime = computeAccelerationTime(); // seconds to reach 100 km/h
+      const accelRate = 100 / accelTime; // km/h per second
+
+      // 2) Update speed
+      if (simSpeed < computeTopSpeed()) {
+        simSpeed += accelRate * dt;
+        if (simSpeed > computeTopSpeed()) simSpeed = computeTopSpeed();
+      }
+
+      // 3) Update distance (km): v (km/h) * dt (s) / 3600
+      simDistance += (simSpeed * dt) / 3600;
+
+      // 4) Draw on canvas
+      clearCanvas();
+      // Map distance to pixel position: assume 1 km = 100 px
+      const distancePx = (simDistance * 100) % (document.getElementById("simulatorCanvas").width - 80);
+      drawCar(distancePx);
+
+      // 5) Update status text
+      updateSimStatus();
+
+      // 6) Continue loop
+      if (!simPaused) {
+        simRequestId = requestAnimationFrame(simulateFrame);
       }
     }
 
-    function exportChartImage() {
-      const link = document.createElement("a");
-      link.download = "handling-performance.png";
-      link.href = document
-        .getElementById("performanceChart")
-        .toDataURL("image/png");
-      link.click();
-      showNotification("Performance chart exported as PNG", "success");
-    }
-
-    function showNotification(message, type) {
-      const notification = document.createElement("div");
-      notification.className = `notification ${type}`;
-      notification.innerHTML = `
-        <i class="fas fa-${
-          type === "success"
-            ? "check-circle"
-            : type === "error"
-            ? "exclamation-circle"
-            : "info-circle"
-        }"></i>
-        ${message}
-      `;
-      document.body.appendChild(notification);
-      setTimeout(() => {
-        notification.classList.add("show");
-      }, 10);
-      setTimeout(() => {
-        notification.classList.remove("show");
-        setTimeout(() => {
-          document.body.removeChild(notification);
-        }, 300);
-      }, 3000);
-    }
-
-    // Notification CSS (appended dynamically)
-    const notificationStyle = document.createElement("style");
-    notificationStyle.innerHTML = `
-      .notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 25px;
-        border-radius: 8px;
-        background: var(--panel-bg);
-        border: 1px solid var(--panel-border);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        transform: translateX(150%);
-        transition: transform 0.3s ease-out;
-        z-index: 10000;
+    // Button handlers inside Simulator Modal
+    document.getElementById("simStartBtn").addEventListener("click", () => {
+      if (simPaused) {
+        simPaused = false;
+        simPrevTimestamp = null;
+        simRequestId = requestAnimationFrame(simulateFrame);
       }
-
-      .notification.show {
-        transform: translateX(0);
-      }
-
-      .notification.success {
-        border-left: 4px solid var(--success);
-      }
-
-      .notification.info {
-        border-left: 4px solid var(--accent-primary);
-      }
-
-      .notification.error {
-        border-left: 4px solid var(--danger);
-      }
-    `;
-    document.head.appendChild(notificationStyle);
-
-    // Ripple effect on buttons
-    document.querySelectorAll(".btn").forEach((button) => {
-      button.addEventListener("click", function (e) {
-        const ripple = document.createElement("span");
-        ripple.classList.add("ripple");
-        this.appendChild(ripple);
-
-        const rect = this.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        const x = e.clientX - rect.left - size / 2;
-        const y = e.clientY - rect.top - size / 2;
-        ripple.style.width = ripple.style.height = `${size}px`;
-        ripple.style.left = `${x}px`;
-        ripple.style.top = `${y}px`;
-
-        setTimeout(() => {
-          ripple.remove();
-        }, 600);
-      });
     });
 
-    const rippleCSS = document.createElement("style");
-    rippleCSS.innerHTML = `
-      .ripple {
-        position: absolute;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.3);
-        transform: scale(0);
-        animation: ripple 0.6s linear;
-      }
+    document.getElementById("simResetBtn").addEventListener("click", () => {
+      cancelAnimationFrame(simRequestId);
+      resetSimulation();
+    });
 
-      @keyframes ripple {
-        to {
-          transform: scale(4);
-          opacity: 0;
-        }
-      }
-    `;
-    document.head.appendChild(rippleCSS);
+    document.getElementById("simulatorCloseBtn").addEventListener("click", () => {
+      closeSimulatorModal();
+    });
 
     // ────────────────────────────────────────────────────────────────────────────
     // HISTORY MODAL FUNCTIONS
@@ -2605,6 +2617,109 @@
       saveVersion();
     }
     initialSave();
+
+    function showNotification(message, type) {
+      const notification = document.createElement("div");
+      notification.className = `notification ${type}`;
+      notification.innerHTML = `
+        <i class="fas fa-${
+          type === "success"
+            ? "check-circle"
+            : type === "error"
+            ? "exclamation-circle"
+            : "info-circle"
+        }"></i>
+        ${message}
+      `;
+      document.body.appendChild(notification);
+      setTimeout(() => {
+        notification.classList.add("show");
+      }, 10);
+      setTimeout(() => {
+        notification.classList.remove("show");
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 3000);
+    }
+
+    // Notification CSS (appended dynamically)
+    const notificationStyle = document.createElement("style");
+    notificationStyle.innerHTML = `
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        border-radius: 8px;
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateX(150%);
+        transition: transform 0.3s ease-out;
+        z-index: 10000;
+      }
+
+      .notification.show {
+        transform: translateX(0);
+      }
+
+      .notification.success {
+        border-left: 4px solid var(--success);
+      }
+
+      .notification.info {
+        border-left: 4px solid var(--accent-primary);
+      }
+
+      .notification.error {
+        border-left: 4px solid var(--danger);
+      }
+    `;
+    document.head.appendChild(notificationStyle);
+
+    // Ripple effect on buttons
+    document.querySelectorAll(".btn").forEach((button) => {
+      button.addEventListener("click", function (e) {
+        const ripple = document.createElement("span");
+        ripple.classList.add("ripple");
+        this.appendChild(ripple);
+
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        ripple.style.width = ripple.style.height = `${size}px`;
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+
+        setTimeout(() => {
+          ripple.remove();
+        }, 600);
+      });
+    });
+
+    const rippleCSS = document.createElement("style");
+    rippleCSS.innerHTML = `
+      .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(0);
+        animation: ripple 0.6s linear;
+      }
+
+      @keyframes ripple {
+        to {
+          transform: scale(4);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(rippleCSS);
   </script>
 </body>
 </html>
