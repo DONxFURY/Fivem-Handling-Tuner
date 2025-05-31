@@ -1,15 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PROFESSIONAL | FiveM Handling.meta Tuner</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Font Awesome for icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+
+  <!-- Chart.js for the radar chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- vkBeautify (optional, for pretty‐printing XML later if desired) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vkBeautify/0.99.00/vkbeautify.js"></script>
+
   <style>
+    /* -------------------------------------------------------
+       Color Variables, Typography, and Basic Reset
+    ------------------------------------------------------- */
     :root {
-      --bg-gradient: linear-gradient(135deg, #0f1a2f 0%, #1a2b4d 50%, #0f1a2f 100%);
+      --bg-gradient: linear-gradient(
+        135deg,
+        #0f1a2f 0%,
+        #1a2b4d 50%,
+        #0f1a2f 100%
+      );
       --panel-bg: rgba(25, 35, 60, 0.85);
       --panel-border: rgba(78, 205, 196, 0.25);
       --text-primary: #e0f7ff;
@@ -28,7 +46,8 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', sans-serif;
+      font-family: "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+        "Fira Sans", "Droid Sans", sans-serif;
     }
 
     body {
@@ -42,18 +61,22 @@
       position: relative;
     }
 
+    /* Light SVG grid overlay in the background */
     body::before {
-      content: '';
+      content: "";
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="none"/><path d="M0,0 L200,200 M200,0 L0,200" stroke="rgba(78, 205, 196, 0.03)" stroke-width="1"/></svg>');
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='none'/><path d='M0,0 L200,200 M200,0 L0,200' stroke='rgba(78, 205, 196, 0.03)' stroke-width='1'/></svg>");
       opacity: 0.4;
       z-index: -1;
     }
 
+    /* -------------------------------------------------------
+       App Header Styles
+    ------------------------------------------------------- */
     .app-header {
       display: flex;
       justify-content: space-between;
@@ -65,7 +88,7 @@
     }
 
     .app-header::after {
-      content: '';
+      content: "";
       position: absolute;
       bottom: -1px;
       left: 0;
@@ -103,6 +126,9 @@
       gap: 15px;
     }
 
+    /* -------------------------------------------------------
+       Layout: Two-Column Grid for Content
+    ------------------------------------------------------- */
     .app-content {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -111,6 +137,9 @@
       height: calc(100vh - 160px);
     }
 
+    /* -------------------------------------------------------
+       Panel (card) Styles
+    ------------------------------------------------------- */
     .panel {
       background: var(--panel-bg);
       backdrop-filter: blur(10px);
@@ -124,7 +153,8 @@
     }
 
     .panel:hover {
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(78, 205, 196, 0.3);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(78, 205, 196, 0.3);
     }
 
     .panel-header {
@@ -154,6 +184,9 @@
       gap: 10px;
     }
 
+    /* -------------------------------------------------------
+       Button Styles (including ripple effect)
+    ------------------------------------------------------- */
     .btn {
       background: var(--glass-bg);
       color: var(--text-primary);
@@ -167,6 +200,8 @@
       gap: 8px;
       font-weight: 500;
       backdrop-filter: blur(5px);
+      position: relative;
+      overflow: hidden;
     }
 
     .btn:hover {
@@ -197,6 +232,9 @@
       color: #0f1a2f;
     }
 
+    /* -------------------------------------------------------
+       Form Grid for Inputs
+    ------------------------------------------------------- */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -245,11 +283,14 @@
       background: rgba(15, 30, 60, 0.5);
     }
 
+    /* -------------------------------------------------------
+       XML Preview Box
+    ------------------------------------------------------- */
     .output {
       background: rgba(10, 20, 40, 0.4);
       padding: 20px;
       border-radius: 8px;
-      font-family: 'Fira Code', monospace;
+      font-family: "Fira Code", monospace;
       font-size: 0.9rem;
       flex: 1;
       overflow-y: auto;
@@ -259,12 +300,18 @@
       line-height: 1.6;
     }
 
+    /* -------------------------------------------------------
+       Chart Container
+    ------------------------------------------------------- */
     .chart-container {
       height: 300px;
       width: 100%;
       position: relative;
     }
 
+    /* -------------------------------------------------------
+       Stats Grid (3 cards)
+    ------------------------------------------------------- */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -302,6 +349,9 @@
       text-align: center;
     }
 
+    /* -------------------------------------------------------
+       Full-Width Panels
+    ------------------------------------------------------- */
     .panel-full {
       grid-column: 1 / -1;
     }
@@ -310,6 +360,9 @@
       grid-row: span 2;
     }
 
+    /* -------------------------------------------------------
+       Tab Buttons
+    ------------------------------------------------------- */
     .panel-tabs {
       display: flex;
       gap: 10px;
@@ -329,10 +382,24 @@
       color: var(--accent-primary);
     }
 
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* -------------------------------------------------------
+       File Input (Hidden)
+    ------------------------------------------------------- */
     .file-input {
       display: none;
     }
 
+    /* -------------------------------------------------------
+       Status Bar at Bottom
+    ------------------------------------------------------- */
     .status-bar {
       display: flex;
       justify-content: space-between;
@@ -366,15 +433,9 @@
       background: var(--danger);
     }
 
-    .tab-content {
-      display: none;
-    }
-    
-    .tab-content.active {
-      display: block;
-    }
-
-    /* Scrollbar styling */
+    /* -------------------------------------------------------
+       Scrollbar Styling
+    ------------------------------------------------------- */
     ::-webkit-scrollbar {
       width: 10px;
       height: 10px;
@@ -394,12 +455,14 @@
       background: rgba(78, 205, 196, 0.6);
     }
 
-    /* Responsive adjustments */
+    /* -------------------------------------------------------
+       Responsive Adjustments
+    ------------------------------------------------------- */
     @media (max-width: 1200px) {
       .app-content {
         grid-template-columns: 1fr;
       }
-      
+
       .panel-tall {
         grid-row: auto;
       }
@@ -407,6 +470,7 @@
   </style>
 </head>
 <body>
+  <!-- ───────────── APP HEADER ───────────── -->
   <div class="app-header">
     <div class="app-title">
       <i class="fas fa-car-crash"></i>
@@ -418,9 +482,10 @@
       <button class="btn"><i class="fas fa-cog"></i> Settings</button>
     </div>
   </div>
-  
+
+  <!-- ───────────── MAIN CONTENT GRID ───────────── -->
   <div class="app-content">
-    <!-- Left Column -->
+    <!-- ───────────── LEFT COLUMN: Handling Parameters ───────────── -->
     <div class="panel panel-tall">
       <div class="panel-header">
         <h2><i class="fas fa-sliders-h"></i> Handling Parameters</h2>
@@ -429,162 +494,642 @@
           <button class="btn"><i class="fas fa-question-circle"></i></button>
         </div>
       </div>
-      
+
+      <!-- ── Tabs for Parameter Sections ── -->
       <div class="panel-tabs">
         <div class="tab active" data-tab="core">Core Parameters</div>
         <div class="tab" data-tab="physics">Advanced Physics</div>
         <div class="tab" data-tab="suspension">Suspension</div>
         <div class="tab" data-tab="damage">Damage</div>
+        <div class="tab" data-tab="subhandling">Sub Handling</div>
       </div>
-      
+
+      <!-- ─────────────────────────────────────────────────────────────────────────────────────
+           CORE PARAMETERS TAB
+      ───────────────────────────────────────────────────────────────────────────────────── -->
       <div id="core" class="tab-content active">
         <div class="form-grid">
+          <!-- Handling Name -->
           <div class="form-group">
-            <label><i class="fas fa-weight-hanging"></i> Mass</label>
-            <input type="number" id="fMass_value" value="1500.0" min="100" max="50000" step="50">
+            <label><i class="fas fa-tag"></i> Handling Name</label>
+            <input type="text" id="handlingName_value" value="404330i" />
           </div>
-          
+
+          <!-- Mass -->
           <div class="form-group">
-            <label><i class="fas fa-tachometer-alt"></i> Initial Drag</label>
-            <input type="number" id="initialDrag_value" value="0.0" min="0" max="10" step="0.1">
+            <label><i class="fas fa-weight-hanging"></i> Mass (kg)</label>
+            <input
+              type="number"
+              id="fMass_value"
+              value="1800.0"
+              min="100"
+              max="50000"
+              step="1"
+            />
           </div>
-          
+
+          <!-- Downforce Modifier (lowercase in XML) -->
           <div class="form-group">
-            <label><i class="fas fa-box"></i> Centre of Mass</label>
-            <input type="text" id="vecCentreOfMassOffset_value" value="0.0 0.0 0.0">
+            <label><i class="fas fa-wind"></i> Downforce Modifier</label>
+            <input
+              type="number"
+              id="fdownforcemodifier_value"
+              value="1000.0"
+              min="0"
+              max="5000"
+              step="0.1"
+            />
           </div>
-          
+
+          <!-- Initial Drag -->
           <div class="form-group">
-            <label><i class="fas fa-car"></i> Drive Bias</label>
-            <input type="number" id="fDriveBiasFront_value" value="0.5" min="0" max="1" step="0.01">
+            <label><i class="fas fa-tachometer-alt"></i> Initial Drag Coeff</label>
+            <input
+              type="number"
+              id="initialDrag_value"
+              value="7.5"
+              min="0"
+              max="10"
+              step="0.1"
+            />
           </div>
-          
+
+          <!-- Percent Submerged -->
           <div class="form-group">
-            <label><i class="fas fa-wind"></i> Downforce</label>
-            <input type="number" id="fDownforceModifier_value" value="0.0" min="-1" max="1" step="0.01">
+            <label><i class="fas fa-water"></i> Percent Submerged</label>
+            <input
+              type="number"
+              id="fPercentSubmerged_value"
+              value="85.0"
+              min="0"
+              max="100"
+              step="0.1"
+            />
           </div>
-          
+
+          <!-- Centre of Mass -->
           <div class="form-group">
-            <label><i class="fas fa-grip-lines"></i> Traction Curve</label>
-            <input type="number" id="fTractionCurveMax_value" value="2.2" min="0" max="10" step="0.1">
+            <label><i class="fas fa-box"></i> Centre of Mass (x y z)</label>
+            <input
+              type="text"
+              id="vecCentreOfMassOffset_value"
+              value="0.0 0.2 0.0"
+            />
           </div>
-          
+
+          <!-- Inertia Multiplier -->
           <div class="form-group">
-            <label><i class="fas fa-grip-lines"></i> Traction Bias</label>
-            <input type="number" id="fTractionBiasFront_value" value="0.48" min="0" max="1" step="0.01">
+            <label><i class="fas fa-cogs"></i> Inertia Multiplier (x y z)</label>
+            <input
+              type="text"
+              id="vecInertiaMultiplier_value"
+              value="1.2 1.3 1.8"
+            />
           </div>
-          
+
+          <!-- Drive Bias Front -->
           <div class="form-group">
-            <label><i class="fas fa-car-side"></i> Steering Lock</label>
-            <input type="number" id="fSteeringLock_value" value="35.0" min="0" max="50" step="0.5">
+            <label><i class="fas fa-car"></i> Drive Bias Front</label>
+            <input
+              type="number"
+              id="fDriveBiasFront_value"
+              value="0.3"
+              min="0"
+              max="1"
+              step="0.01"
+            />
+          </div>
+
+          <!-- Initial Drive Gears -->
+          <div class="form-group">
+            <label><i class="fas fa-cogs"></i> Initial Drive Gears</label>
+            <input
+              type="number"
+              id="nInitialDriveGears_value"
+              value="9"
+              min="1"
+              max="12"
+              step="1"
+            />
+          </div>
+
+          <!-- Initial Drive Force -->
+          <div class="form-group">
+            <label><i class="fas fa-tachometer-alt"></i> Initial Drive Force</label>
+            <input
+              type="number"
+              id="fInitialDriveForce_value"
+              value="0.6"
+              min="0"
+              max="5"
+              step="0.01"
+            />
+          </div>
+
+          <!-- Drive Inertia -->
+          <div class="form-group">
+            <label><i class="fas fa-cogs"></i> Drive Inertia</label>
+            <input
+              type="number"
+              id="fDriveInertia_value"
+              value="1.0"
+              min="0"
+              max="5"
+              step="0.01"
+            />
+          </div>
+
+          <!-- Clutch Change Scale Up Shift -->
+          <div class="form-group">
+            <label><i class="fas fa-fire"></i> Clutch Change Scale (Up)</label>
+            <input
+              type="number"
+              id="fClutchChangeRateScaleUpShift_value"
+              value="2.3"
+              min="0"
+              max="5"
+              step="0.01"
+            />
+          </div>
+
+          <!-- Clutch Change Scale Down Shift -->
+          <div class="form-group">
+            <label><i class="fas fa-fire"></i> Clutch Change Scale (Down)</label>
+            <input
+              type="number"
+              id="fClutchChangeRateScaleDownShift_value"
+              value="2.3"
+              min="0"
+              max="5"
+              step="0.01"
+            />
+          </div>
+
+          <!-- Initial Drive Max Flat Vel -->
+          <div class="form-group">
+            <label><i class="fas fa-speedometer"></i> Initial Drive Max Flat Vel</label>
+            <input
+              type="number"
+              id="fInitialDriveMaxFlatVel_value"
+              value="328.0"
+              min="0"
+              max="500"
+              step="0.1"
+            />
+          </div>
+
+          <!-- Brake Force -->
+          <div class="form-group">
+            <label><i class="fas fa-tachometer-alt"></i> Brake Force</label>
+            <input
+              type="number"
+              id="fBrakeForce_value"
+              value="40.9"
+              min="0"
+              max="100"
+              step="0.1"
+            />
+          </div>
+
+          <!-- Brake Bias Front -->
+          <div class="form-group">
+            <label><i class="fas fa-balance-scale"></i> Brake Bias Front</label>
+            <input
+              type="number"
+              id="fBrakeBiasFront_value"
+              value="0.425"
+              min="0"
+              max="1"
+              step="0.001"
+            />
+          </div>
+
+          <!-- Hand Brake Force -->
+          <div class="form-group">
+            <label><i class="fas fa-hand-back-hand"></i> Hand Brake Force</label>
+            <input
+              type="number"
+              id="fHandBrakeForce_value"
+              value="0.6"
+              min="0"
+              max="5"
+              step="0.01"
+            />
+          </div>
+
+          <!-- Steering Lock -->
+          <div class="form-group">
+            <label><i class="fas fa-steering-wheel"></i> Steering Lock</label>
+            <input
+              type="number"
+              id="fSteeringLock_value"
+              value="45.0"
+              min="0"
+              max="50"
+              step="0.5"
+            />
+          </div>
+
+          <!-- Traction Curve Max -->
+          <div class="form-group">
+            <label><i class="fas fa-grip-lines"></i> Traction Curve Max</label>
+            <input
+              type="number"
+              id="fTractionCurveMax_value"
+              value="12.0"
+              min="0"
+              max="20"
+              step="0.1"
+            />
+          </div>
+
+          <!-- Traction Curve Min -->
+          <div class="form-group">
+            <label><i class="fas fa-grip-lines"></i> Traction Curve Min</label>
+            <input
+              type="number"
+              id="fTractionCurveMin_value"
+              value="11.0"
+              min="0"
+              max="20"
+              step="0.1"
+            />
+          </div>
+
+          <!-- Traction Curve Lateral -->
+          <div class="form-group">
+            <label><i class="fas fa-car-grip"></i> Traction Curve Lateral</label>
+            <input
+              type="number"
+              id="fTractionCurveLateral_value"
+              value="25.0"
+              min="0"
+              max="100"
+              step="0.1"
+            />
+          </div>
+
+          <!-- Traction Spring Delta Max -->
+          <div class="form-group">
+            <label><i class="fas fa-spring"></i> Traction Spring Delta Max</label>
+            <input
+              type="number"
+              id="fTractionSpringDeltaMax_value"
+              value="0.150000"
+              min="0"
+              max="1"
+              step="0.001"
+            />
+          </div>
+
+          <!-- Low Speed Traction Loss Mult -->
+          <div class="form-group">
+            <label><i class="fas fa-snail"></i> Low Speed Traction Loss Mult</label>
+            <input
+              type="number"
+              id="fLowSpeedTractionLossMult_value"
+              value="1.0"
+              min="0"
+              max="5"
+              step="0.01"
+            />
+          </div>
+
+          <!-- Camber Stiffnesss -->
+          <div class="form-group">
+            <label><i class="fas fa-cog"></i> Camber Stiffnesss</label>
+            <input
+              type="number"
+              id="fCamberStiffnesss_value"
+              value="0.0"
+              min="0"
+              max="10"
+              step="0.01"
+            />
+          </div>
+
+          <!-- Traction Bias Front -->
+          <div class="form-group">
+            <label><i class="fas fa-grip-lines"></i> Traction Bias Front</label>
+            <input
+              type="number"
+              id="fTractionBiasFront_value"
+              value="0.425"
+              min="0"
+              max="1"
+              step="0.001"
+            />
+          </div>
+
+          <!-- Traction Loss Mult -->
+          <div class="form-group">
+            <label><i class="fas fa-road"></i> Traction Loss Mult</label>
+            <input
+              type="number"
+              id="fTractionLossMult_value"
+              value="1.0"
+              min="0"
+              max="5"
+              step="0.01"
+            />
           </div>
         </div>
       </div>
-      
+
+      <!-- ─────────────────────────────────────────────────────────────────────────────────────
+           ADVANCED PHYSICS TAB
+      ───────────────────────────────────────────────────────────────────────────────────── -->
       <div id="physics" class="tab-content">
         <div class="form-grid">
           <div class="form-group">
             <label><i class="fas fa-bolt"></i> Engine Inertia</label>
-            <input type="number" id="fEngineInertia_value" value="0.3" min="0" max="5" step="0.1">
+            <input
+              type="number"
+              id="fEngineInertia_value"
+              value="0.3"
+              min="0"
+              max="5"
+              step="0.1"
+            />
           </div>
-          
+
           <div class="form-group">
-            <label><i class="fas fa-fire"></i> Clutch Change Scale</label>
-            <input type="number" id="fClutchChangeRateScaleUpShift_value" value="1.8" min="0" max="5" step="0.1">
+            <label><i class="fas fa-fire"></i> Clutch Change Scale (Up)</label>
+            <input
+              type="number"
+              id="fClutchChangeRateScaleUpShift_value"
+              value="2.3"
+              min="0"
+              max="5"
+              step="0.1"
+            />
           </div>
-          
+
           <div class="form-group">
-            <label><i class="fas fa-compress-arrows-alt"></i> Suspension Force</label>
-            <input type="number" id="fSuspensionForce_value" value="2.0" min="0" max="10" step="0.1">
+            <label><i class="fas fa-fire"></i> Clutch Change Scale (Down)</label>
+            <input
+              type="number"
+              id="fClutchChangeRateScaleDownShift_value"
+              value="2.3"
+              min="0"
+              max="5"
+              step="0.1"
+            />
           </div>
-          
+
           <div class="form-group">
-            <label><i class="fas fa-wave-square"></i> Anti-Roll Bar Force</label>
-            <input type="number" id="fAntiRollBarForce_value" value="0.4" min="0" max="2" step="0.1">
+            <label><i class="fas fa-spring"></i> Suspension Force</label>
+            <input
+              type="number"
+              id="fSuspensionForce_value"
+              value="2.0"
+              min="0"
+              max="10"
+              step="0.1"
+            />
           </div>
-          
+
           <div class="form-group">
-            <label><i class="fas fa-compress"></i> Roll Centre Height</label>
-            <input type="number" id="fRollCentreHeightFront_value" value="0.1" min="-1" max="1" step="0.01">
+            <label><i class="fas fa-compress-arrows-alt"></i> Anti-Roll Bar Force</label>
+            <input
+              type="number"
+              id="fAntiRollBarForce_value"
+              value="0.4"
+              min="0"
+              max="2"
+              step="0.1"
+            />
           </div>
-          
+
+          <div class="form-group">
+            <label><i class="fas fa-compress"></i> Roll Centre Height Front</label>
+            <input
+              type="number"
+              id="fRollCentreHeightFront_value"
+              value="0.1"
+              min="-1"
+              max="1"
+              step="0.01"
+            />
+          </div>
+
           <div class="form-group">
             <label><i class="fas fa-tint"></i> Oil Volume</label>
-            <input type="number" id="fOilVolume_value" value="5.0" min="0" max="20" step="0.5">
+            <input
+              type="number"
+              id="fOilVolume_value"
+              value="5.0"
+              min="0"
+              max="20"
+              step="0.5"
+            />
           </div>
-          
+
           <div class="form-group">
             <label><i class="fas fa-tire"></i> Tire Grip</label>
-            <input type="number" id="fTractionBiasFront_value" value="0.48" min="0" max="1" step="0.01">
+            <input
+              type="number"
+              id="fTireGrip_value"
+              value="0.48"
+              min="0"
+              max="1"
+              step="0.01"
+            />
           </div>
-          
+
           <div class="form-group">
             <label><i class="fas fa-tachometer-alt"></i> Brake Force</label>
-            <input type="number" id="fBrakeForce_value" value="0.8" min="0" max="2" step="0.1">
+            <input
+              type="number"
+              id="fBrakeForce_value"
+              value="40.9"
+              min="0"
+              max="100"
+              step="0.1"
+            />
           </div>
         </div>
       </div>
-      
+
+      <!-- ─────────────────────────────────────────────────────────────────────────────────────
+           SUSPENSION TAB
+      ───────────────────────────────────────────────────────────────────────────────────── -->
       <div id="suspension" class="tab-content">
         <div class="form-grid">
           <div class="form-group">
             <label><i class="fas fa-compress"></i> Suspension Compression</label>
-            <input type="number" id="fSuspensionCompDamp_value" value="0.8" min="0" max="5" step="0.1">
+            <input
+              type="number"
+              id="fSuspensionCompDamp_value"
+              value="0.8"
+              min="0"
+              max="5"
+              step="0.1"
+            />
           </div>
-          
+
           <div class="form-group">
             <label><i class="fas fa-expand"></i> Suspension Rebound</label>
-            <input type="number" id="fSuspensionReboundDamp_value" value="1.6" min="0" max="5" step="0.1">
+            <input
+              type="number"
+              id="fSuspensionReboundDamp_value"
+              value="1.6"
+              min="0"
+              max="5"
+              step="0.1"
+            />
           </div>
-          
+
           <div class="form-group">
-            <label><i class="fas fa-arrow-up"></i> Upper Limit</label>
-            <input type="number" id="fSuspensionUpperLimit_value" value="0.1" min="-1" max="1" step="0.01">
+            <label><i class="fas fa-arrow-up"></i> Suspension Upper Limit</label>
+            <input
+              type="number"
+              id="fSuspensionUpperLimit_value"
+              value="0.1"
+              min="-1"
+              max="1"
+              step="0.01"
+            />
           </div>
-          
+
           <div class="form-group">
-            <label><i class="fas fa-arrow-down"></i> Lower Limit</label>
-            <input type="number" id="fSuspensionLowerLimit_value" value="-0.1" min="-1" max="1" step="0.01">
+            <label><i class="fas fa-arrow-down"></i> Suspension Lower Limit</label>
+            <input
+              type="number"
+              id="fSuspensionLowerLimit_value"
+              value="-0.1"
+              min="-1"
+              max="1"
+              step="0.01"
+            />
           </div>
-          
+
           <div class="form-group">
             <label><i class="fas fa-level-up-alt"></i> Suspension Raise</label>
-            <input type="number" id="fSuspensionRaise_value" value="0.0" min="-1" max="1" step="0.01">
+            <input
+              type="number"
+              id="fSuspensionRaise_value"
+              value="0.0"
+              min="-1"
+              max="1"
+              step="0.01"
+            />
           </div>
         </div>
       </div>
-      
+
+      <!-- ─────────────────────────────────────────────────────────────────────────────────────
+           DAMAGE TAB
+      ───────────────────────────────────────────────────────────────────────────────────── -->
       <div id="damage" class="tab-content">
         <div class="form-grid">
           <div class="form-group">
-            <label><i class="fas fa-crash"></i> Collision Damage</label>
-            <input type="number" id="fCollisionDamageMult_value" value="0.7" min="0" max="5" step="0.1">
+            <label><i class="fas fa-crash"></i> Collision Damage Mult</label>
+            <input
+              type="number"
+              id="fCollisionDamageMult_value"
+              value="0.7"
+              min="0"
+              max="5"
+              step="0.1"
+            />
           </div>
-          
+
           <div class="form-group">
-            <label><i class="fas fa-gun"></i> Weapon Damage</label>
-            <input type="number" id="fWeaponDamageMult_value" value="1.0" min="0" max="5" step="0.1">
+            <label><i class="fas fa-gun"></i> Weapon Damage Mult</label>
+            <input
+              type="number"
+              id="fWeaponDamageMult_value"
+              value="1.0"
+              min="0"
+              max="5"
+              step="0.1"
+            />
           </div>
-          
+
           <div class="form-group">
-            <label><i class="fas fa-car-burst"></i> Deformation Damage</label>
-            <input type="number" id="fDeformationDamageMult_value" value="0.7" min="0" max="5" step="0.1">
+            <label><i class="fas fa-car-burst"></i> Deformation Damage Mult</label>
+            <input
+              type="number"
+              id="fDeformationDamageMult_value"
+              value="0.7"
+              min="0"
+              max="5"
+              step="0.1"
+            />
           </div>
-          
+
           <div class="form-group">
-            <label><i class="fas fa-engine"></i> Engine Damage</label>
-            <input type="number" id="fEngineDamageMult_value" value="1.5" min="0" max="5" step="0.1">
+            <label><i class="fas fa-engine"></i> Engine Damage Mult</label>
+            <input
+              type="number"
+              id="fEngineDamageMult_value"
+              value="1.5"
+              min="0"
+              max="5"
+              step="0.1"
+            />
           </div>
-          
+
           <div class="form-group">
             <label><i class="fas fa-gas-pump"></i> Petrol Tank Volume</label>
-            <input type="number" id="fPetrolTankVolume_value" value="65.0" min="0" max="200" step="1">
+            <input
+              type="number"
+              id="fPetrolTankVolume_value"
+              value="65.0"
+              min="0"
+              max="200"
+              step="1"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────────────────────────────────────────────────────
+           SUB HANDLING TAB
+      ───────────────────────────────────────────────────────────────────────────────────── -->
+      <div id="subhandling" class="tab-content">
+        <div class="form-grid">
+          <div class="form-group">
+            <label><i class="fas fa-car-crash"></i> fBackEndPopUpCarImpulseMult</label>
+            <input
+              type="number"
+              id="fBackEndPopUpCarImpulseMult_value"
+              value="0.1"
+              min="0"
+              max="5"
+              step="0.001"
+            />
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-building"></i> fBackEndPopUpBuildingImpulseMult</label>
+            <input
+              type="number"
+              id="fBackEndPopUpBuildingImpulseMult_value"
+              value="0.03"
+              min="0"
+              max="5"
+              step="0.001"
+            />
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-tachometer-alt"></i> fBackEndPopUpMaxDeltaSpeed</label>
+            <input
+              type="number"
+              id="fBackEndPopUpMaxDeltaSpeed_value"
+              value="0.6"
+              min="0"
+              max="5"
+              step="0.001"
+            />
           </div>
         </div>
       </div>
     </div>
-    
-    <!-- Right Top Panel -->
+
+    <!-- ───────────── RIGHT TOP: Performance Visualization ───────────── -->
     <div class="panel">
       <div class="panel-header">
         <h2><i class="fas fa-chart-line"></i> Performance Visualization</h2>
@@ -592,33 +1137,35 @@
           <button class="btn" id="exportChartBtn"><i class="fas fa-download"></i> Export Chart</button>
         </div>
       </div>
-      
+
+      <!-- Radar Chart Canvas -->
       <div class="chart-container">
         <canvas id="performanceChart"></canvas>
       </div>
-      
+
+      <!-- Three Stat Cards -->
       <div class="stats-grid">
         <div class="stat-card">
           <i class="fas fa-tachometer-alt"></i>
-          <div class="stat-value" id="topSpeed">215</div>
+          <div class="stat-value" id="topSpeed">0</div>
           <div class="stat-label">Top Speed (km/h)</div>
         </div>
-        
+
         <div class="stat-card">
           <i class="fas fa-stopwatch"></i>
-          <div class="stat-value" id="acceleration">4.2s</div>
-          <div class="stat-label">0-100 km/h</div>
+          <div class="stat-value" id="acceleration">0.0s</div>
+          <div class="stat-label">0–100 km/h</div>
         </div>
-        
+
         <div class="stat-card">
           <i class="fas fa-grip-lines"></i>
-          <div class="stat-value" id="lateralGrip">0.98g</div>
+          <div class="stat-value" id="lateralGrip">0.00g</div>
           <div class="stat-label">Lateral Grip</div>
         </div>
       </div>
     </div>
-    
-    <!-- Right Bottom Panel -->
+
+    <!-- ───────────── RIGHT BOTTOM: XML Preview ───────────── -->
     <div class="panel">
       <div class="panel-header">
         <h2><i class="fas fa-file-code"></i> XML Preview</h2>
@@ -626,23 +1173,35 @@
           <button class="btn" id="expandPreviewBtn"><i class="fas fa-expand"></i></button>
         </div>
       </div>
-      
+      <!-- This <pre> holds the raw XML; JavaScript will replace values inside it -->
       <pre class="output" id="preview">&lt;CHandlingDataMgr&gt;
   &lt;HandlingData&gt;
     &lt;Item type="CHandlingData"&gt;
-      &lt;handlingName&gt;ADDER&lt;/handlingName&gt;
-      &lt;fMass value="1500.000000" /&gt;
-      &lt;fInitialDragCoeff value="0.000000" /&gt;
-      &lt;fDownforceModifier value="0.000000" /&gt;
-      &lt;vecCentreOfMassOffset x="0.000000" y="0.000000" z="0.000000" /&gt;
-      &lt;fDriveBiasFront value="0.500000" /&gt;
-      &lt;fTractionCurveMax value="2.200000" /&gt;
-      &lt;fTractionCurveMin value="2.000000" /&gt;
-      &lt;fTractionCurveLateral value="22.500000" /&gt;
+      &lt;handlingName&gt;404330i&lt;/handlingName&gt;
+      &lt;fMass value="1800.000000" /&gt;
+      &lt;fdownforcemodifier value="1000.000000" /&gt;
+      &lt;fInitialDragCoeff value="7.500000" /&gt;
+      &lt;fPercentSubmerged value="85.000000" /&gt;
+      &lt;vecCentreOfMassOffset x="0.000000" y="0.200000" z="0.000000" /&gt;
+      &lt;vecInertiaMultiplier x="1.200000" y="1.300000" z="1.800000" /&gt;
+      &lt;fDriveBiasFront value="0.300000" /&gt;
+      &lt;nInitialDriveGears value="9" /&gt;
+      &lt;fInitialDriveForce value="0.600000" /&gt;
+      &lt;fDriveInertia value="1.000000" /&gt;
+      &lt;fClutchChangeRateScaleUpShift value="2.300000" /&gt;
+      &lt;fClutchChangeRateScaleDownShift value="2.300000" /&gt;
+      &lt;fInitialDriveMaxFlatVel value="328.000000" /&gt;
+      &lt;fBrakeForce value="40.900000" /&gt;
+      &lt;fBrakeBiasFront value="0.425000" /&gt;
+      &lt;fHandBrakeForce value="0.600000" /&gt;
+      &lt;fSteeringLock value="45.000000" /&gt;
+      &lt;fTractionCurveMax value="12.000000" /&gt;
+      &lt;fTractionCurveMin value="11.000000" /&gt;
+      &lt;fTractionCurveLateral value="25.000000" /&gt;
       &lt;fTractionSpringDeltaMax value="0.150000" /&gt;
       &lt;fLowSpeedTractionLossMult value="1.000000" /&gt;
       &lt;fCamberStiffnesss value="0.000000" /&gt;
-      &lt;fTractionBiasFront value="0.480000" /&gt;
+      &lt;fTractionBiasFront value="0.425000" /&gt;
       &lt;fTractionLossMult value="1.000000" /&gt;
       &lt;fSuspensionForce value="2.000000" /&gt;
       &lt;fSuspensionCompDamp value="0.800000" /&gt;
@@ -663,15 +1222,27 @@
       &lt;fSeatOffsetDistY value="0.000000" /&gt;
       &lt;fSeatOffsetDistZ value="0.000000" /&gt;
       &lt;nMonetaryValue value="1000000" /&gt;
-      &lt;strModelFlags&gt;440010&lt;/strModelFlags&gt;
+      &lt;strModelFlags&gt;0&lt;/strModelFlags&gt;
       &lt;strHandlingFlags&gt;0&lt;/strHandlingFlags&gt;
       &lt;strDamageFlags&gt;0&lt;/strDamageFlags&gt;
+      &lt;AIHandling&gt;SPORTS_CAR&lt;/AIHandling&gt;
+      &lt;SubHandlingData&gt;
+        &lt;Item type="CCarHandlingData"&gt;
+          &lt;fBackEndPopUpCarImpulseMult value="0.100000" /&gt;
+          &lt;fBackEndPopUpBuildingImpulseMult value="0.030000" /&gt;
+          &lt;fBackEndPopUpMaxDeltaSpeed value="0.600000" /&gt;
+        &lt;/Item&gt;
+        &lt;Item type="NULL" /&gt;
+        &lt;Item type="NULL" /&gt;
+      &lt;/SubHandlingData&gt;
     &lt;/Item&gt;
   &lt;/HandlingData&gt;
 &lt;/CHandlingDataMgr&gt;</pre>
     </div>
-    
-    <!-- Full Width Panel -->
+
+    <!-- ─────────────────────────────────────────────────────────────────────────────────────
+         FULL WIDTH: Export & Actions
+    ───────────────────────────────────────────────────────────────────────────────────── -->
     <div class="panel panel-full">
       <div class="panel-header">
         <h2><i class="fas fa-file-export"></i> Export & Actions</h2>
@@ -679,7 +1250,7 @@
           <button class="btn btn-primary" id="uploadBtn"><i class="fas fa-cloud-upload-alt"></i> Upload to Server</button>
         </div>
       </div>
-      
+
       <div class="btn-group" style="display: flex; gap: 15px; justify-content: center; margin-top: 10px;">
         <button id="importBtn" class="btn btn-primary"><i class="fas fa-folder-open"></i> Import Meta</button>
         <button id="exportBtn" class="btn btn-primary"><i class="fas fa-file-export"></i> Export Meta</button>
@@ -687,29 +1258,30 @@
         <button class="btn btn-primary" id="simulatorBtn"><i class="fas fa-vial"></i> Test in Simulator</button>
         <button class="btn btn-primary" id="compareBtn"><i class="fas fa-history"></i> Compare Versions</button>
       </div>
-      
+
       <div class="stats-grid" style="margin-top: 20px;">
         <div class="stat-card">
           <i class="fas fa-file-code"></i>
-          <div class="stat-value" id="paramCount">24</div>
+          <div class="stat-value" id="paramCount">0</div>
           <div class="stat-label">Parameters Tuned</div>
         </div>
-        
         <div class="stat-card">
           <i class="fas fa-save"></i>
-          <div class="stat-value" id="fileSize">5.2</div>
+          <div class="stat-value" id="fileSize">0.0</div>
           <div class="stat-label">KB File Size</div>
         </div>
-        
         <div class="stat-card">
           <i class="fas fa-code-branch"></i>
-          <div class="stat-value" id="versionCount">3</div>
+          <div class="stat-value" id="versionCount">0</div>
           <div class="stat-label">Saved Versions</div>
         </div>
       </div>
     </div>
   </div>
-  
+
+  <!-- ─────────────────────────────────────────────────────────────────────────────────────
+       STATUS BAR AT BOTTOM
+  ───────────────────────────────────────────────────────────────────────────────────── -->
   <div class="status-bar">
     <div class="status-item">
       <div class="status-indicator"></div>
@@ -728,37 +1300,87 @@
       <span>User: admin@fivem.com</span>
     </div>
   </div>
-  
-  <input type="file" id="fileInput" class="file-input" accept=".meta,.xml">
-  
+
+  <!-- Hidden file input for “Import Meta” -->
+  <input
+    type="file"
+    id="fileInput"
+    class="file-input"
+    accept=".meta,.xml"
+  />
+
   <script>
-    // Initialize performance chart
-    const ctx = document.getElementById('performanceChart').getContext('2d');
+    // ────────────────────────────────────────────────────────────────────────────
+    // computeTopSpeed(): guaranteed to return a positive number for realistic defaults
+    // Adjust the constants (1600, 12000, 1.5, etc.) to get your desired "real-world" speed.
+    // ────────────────────────────────────────────────────────────────────────────
+    function computeTopSpeed() {
+      const driveForce = parseFloat(
+        document.getElementById("fInitialDriveForce_value").value
+      );
+      const dragCoeff = parseFloat(
+        document.getElementById("initialDrag_value").value
+      );
+      const mass = parseFloat(
+        document.getElementById("fMass_value").value
+      );
+
+      // Example formula:
+      //   base = (driveForce * 1600) / (dragCoeff + 0.1)
+      //   massFactor = 12000 / (mass + 200)
+      //   raw = (base + massFactor) * 1.5
+      let topSpeed =
+        (
+          driveForce * 1600 / (dragCoeff + 0.1) +
+          12000 / (mass + 200)
+        ) * 1.5;
+
+      // Clamp between 0 and 500
+      topSpeed = Math.max(0, Math.min(topSpeed, 500));
+      return topSpeed;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // Initialize the radar chart for performance visualization
+    // ────────────────────────────────────────────────────────────────────────────
+    const ctx = document
+      .getElementById("performanceChart")
+      .getContext("2d");
     const performanceChart = new Chart(ctx, {
-      type: 'radar',
+      type: "radar",
       data: {
-        labels: ['Acceleration', 'Top Speed', 'Braking', 'Cornering', 'Stability', 'Off-Road'],
-        datasets: [{
-          label: 'Current Handling',
-          data: [92, 88, 85, 90, 82, 40],
-          fill: true,
-          backgroundColor: 'rgba(78, 205, 196, 0.2)',
-          borderColor: 'rgba(78, 205, 196, 1)',
-          pointBackgroundColor: 'rgba(78, 205, 196, 1)',
-          pointBorderColor: '#fff',
-          pointHoverBackgroundColor: '#fff',
-          pointHoverBorderColor: 'rgba(78, 205, 196, 1)'
-        }, {
-          label: 'Default Handling',
-          data: [75, 85, 75, 80, 70, 30],
-          fill: true,
-          backgroundColor: 'rgba(255, 94, 125, 0.2)',
-          borderColor: 'rgba(255, 94, 125, 1)',
-          pointBackgroundColor: 'rgba(255, 94, 125, 1)',
-          pointBorderColor: '#fff',
-          pointHoverBackgroundColor: '#fff',
-          pointHoverBorderColor: 'rgba(255, 94, 125, 1)'
-        }]
+        labels: [
+          "Acceleration",
+          "Top Speed",
+          "Braking",
+          "Cornering",
+          "Stability",
+          "Off-Road",
+        ],
+        datasets: [
+          {
+            label: "Current Handling",
+            data: [0, 0, 0, 0, 0, 0],
+            fill: true,
+            backgroundColor: "rgba(78, 205, 196, 0.2)",
+            borderColor: "rgba(78, 205, 196, 1)",
+            pointBackgroundColor: "rgba(78, 205, 196, 1)",
+            pointBorderColor: "#fff",
+            pointHoverBackgroundColor: "#fff",
+            pointHoverBorderColor: "rgba(78, 205, 196, 1)",
+          },
+          {
+            label: "Default Handling",
+            data: [75, 85, 75, 80, 70, 30], // placeholder default curve
+            fill: true,
+            backgroundColor: "rgba(255, 94, 125, 0.2)",
+            borderColor: "rgba(255, 94, 125, 1)",
+            pointBackgroundColor: "rgba(255, 94, 125, 1)",
+            pointBorderColor: "#fff",
+            pointHoverBackgroundColor: "#fff",
+            pointHoverBorderColor: "rgba(255, 94, 125, 1)",
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -766,308 +1388,783 @@
         scales: {
           r: {
             angleLines: {
-              color: 'rgba(255, 255, 255, 0.1)'
+              color: "rgba(255, 255, 255, 0.1)",
             },
             grid: {
-              color: 'var(--chart-grid)'
+              color: "var(--chart-grid)",
             },
             pointLabels: {
-              color: 'var(--text-secondary)',
+              color: "var(--text-secondary)",
               font: {
-                size: 11
-              }
+                size: 11,
+              },
             },
             ticks: {
               display: false,
-              stepSize: 20
-            }
-          }
+              stepSize: 20,
+            },
+          },
         },
         plugins: {
           legend: {
             labels: {
-              color: 'var(--text-primary)'
-            }
-          }
-        }
-      }
+              color: "var(--text-primary)",
+            },
+          },
+        },
+      },
     });
 
-    // Tab switching functionality
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        // Remove active class from all tabs and content
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
-        // Add active class to clicked tab
-        this.classList.add('active');
-        
-        // Show corresponding content
-        const tabId = this.getAttribute('data-tab');
-        document.getElementById(tabId).classList.add('active');
+    // ────────────────────────────────────────────────────────────────────────────
+    // Tab Switching Logic
+    // ────────────────────────────────────────────────────────────────────────────
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.addEventListener("click", function () {
+        document.querySelectorAll(".tab").forEach((t) =>
+          t.classList.remove("active")
+        );
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((c) => c.classList.remove("active"));
+
+        this.classList.add("active");
+        const tabId = this.getAttribute("data-tab");
+        document.getElementById(tabId).classList.add("active");
       });
     });
 
-    // Input event handlers - update stats when values change
-    document.querySelectorAll('input').forEach(input => {
-      input.addEventListener('input', function() {
+    // ────────────────────────────────────────────────────────────────────────────
+    // Every input change should recalc stats, update chart, update XML, update param count
+    // ────────────────────────────────────────────────────────────────────────────
+    document.querySelectorAll("input").forEach((input) => {
+      input.addEventListener("input", function () {
         updatePerformanceStats();
+        updateChart();
         updateXMLPreview();
         updateParamCount();
-        
-        // Add visual feedback
-        this.style.boxShadow = '0 0 0 2px rgba(78, 205, 196, 0.4)';
+
+        // Brief visual highlight on changed field
+        this.style.boxShadow = "0 0 0 2px rgba(78, 205, 196, 0.4)";
         setTimeout(() => {
-          this.style.boxShadow = '';
-        }, 1000);
+          this.style.boxShadow = "";
+        }, 800);
       });
     });
 
-    // Button functionality
-    document.getElementById('importBtn').addEventListener('click', () => {
-      document.getElementById('fileInput').click();
-    });
+    // ────────────────────────────────────────────────────────────────────────────
+    // Button Event Listeners
+    // ────────────────────────────────────────────────────────────────────────────
+    document
+      .getElementById("importBtn")
+      .addEventListener("click", () => {
+        document.getElementById("fileInput").click();
+      });
 
-    document.getElementById('exportBtn').addEventListener('click', () => {
-      exportMetaFile();
-    });
+    document
+      .getElementById("exportBtn")
+      .addEventListener("click", () => {
+        exportMetaFile();
+      });
 
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      resetAllValues();
-    });
+    document
+      .getElementById("resetBtn")
+      .addEventListener("click", () => {
+        resetAllValues();
+      });
 
-    document.getElementById('resetSectionBtn').addEventListener('click', () => {
-      resetCurrentSection();
-    });
+    document
+      .getElementById("resetSectionBtn")
+      .addEventListener("click", () => {
+        resetCurrentSection();
+      });
 
-    document.getElementById('uploadBtn').addEventListener('click', () => {
-      simulateUpload();
-    });
+    document
+      .getElementById("uploadBtn")
+      .addEventListener("click", () => {
+        simulateUpload();
+      });
 
-    document.getElementById('simulatorBtn').addEventListener('click', () => {
-      openSimulator();
-    });
+    document
+      .getElementById("simulatorBtn")
+      .addEventListener("click", () => {
+        openSimulator();
+      });
 
-    document.getElementById('compareBtn').addEventListener('click', () => {
-      openComparison();
-    });
+    document
+      .getElementById("compareBtn")
+      .addEventListener("click", () => {
+        openComparison();
+      });
 
-    document.getElementById('expandPreviewBtn').addEventListener('click', () => {
-      expandPreview();
-    });
+    document
+      .getElementById("expandPreviewBtn")
+      .addEventListener("click", () => {
+        expandPreview();
+      });
 
-    document.getElementById('exportChartBtn').addEventListener('click', () => {
-      exportChartImage();
-    });
+    document
+      .getElementById("exportChartBtn")
+      .addEventListener("click", () => {
+        exportChartImage();
+      });
 
-    // File input handling
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-      if (this.files && this.files[0]) {
-        const fileName = this.files[0].name;
-        document.getElementById('connectionStatus').innerHTML = `Loaded: ${fileName}`;
-        
-        // Show success message
-        showNotification(`Successfully imported ${fileName}`, 'success');
-      }
-    });
+    // ────────────────────────────────────────────────────────────────────────────
+    // Handle file selection (Import)
+    // ────────────────────────────────────────────────────────────────────────────
+    document
+      .getElementById("fileInput")
+      .addEventListener("change", function (e) {
+        if (this.files && this.files[0]) {
+          const fileName = this.files[0].name;
+          document.getElementById(
+            "connectionStatus"
+          ).innerHTML = `Loaded: ${fileName}`;
+          showNotification(`Successfully imported ${fileName}`, "success");
+        }
+      });
 
-    // Initialize performance stats
+    // ────────────────────────────────────────────────────────────────────────────
+    // On page load, initialize everything
+    // ────────────────────────────────────────────────────────────────────────────
     updatePerformanceStats();
+    updateChart();
     updateParamCount();
 
-    // Function definitions
+    // ────────────────────────────────────────────────────────────────────────────
+    // FUNCTIONS
+    // ────────────────────────────────────────────────────────────────────────────
+
     function updatePerformanceStats() {
-      // Update top speed based on mass and drag
-      const mass = parseFloat(document.getElementById('fMass_value').value);
-      const drag = parseFloat(document.getElementById('initialDrag_value').value);
-      const topSpeed = 250 - (mass / 1000) * 10 - drag * 20;
-      document.getElementById('topSpeed').textContent = Math.round(topSpeed);
-      
-      // Update acceleration based on mass and traction
-      const traction = parseFloat(document.getElementById('fTractionCurveMax_value').value);
-      const acceleration = 6.0 - (mass / 1000) * 1.0 + (traction - 2.0) * 0.5;
-      document.getElementById('acceleration').textContent = acceleration.toFixed(1) + 's';
-      
-      // Update lateral grip based on traction and suspension
-      const suspension = parseFloat(document.getElementById('fSuspensionForce_value').value);
-      const grip = 0.85 + (traction - 2.0) * 0.05 + (suspension - 2.0) * 0.03;
-      document.getElementById('lateralGrip').textContent = grip.toFixed(2) + 'g';
-      
-      // Update chart
-      updateChart();
+      // Read relevant inputs
+      const traction = parseFloat(
+        document.getElementById("fTractionCurveMax_value").value
+      );
+      const suspension = parseFloat(
+        document.getElementById("fSuspensionForce_value").value
+      );
+
+      // 1) Top Speed via computeTopSpeed()
+      const topSpeed = computeTopSpeed();
+      document.getElementById("topSpeed").textContent = Math.round(topSpeed);
+
+      // 2) Acceleration (0–100 km/h):
+      //    Example formula: (mass / (traction * 100)) + 2.5, clamped [2s, 15s]
+      const mass = parseFloat(
+        document.getElementById("fMass_value").value
+      );
+      let acceleration = mass / (traction * 100) + 2.5;
+      acceleration = Math.max(2, Math.min(acceleration, 15));
+      document.getElementById("acceleration").textContent =
+        acceleration.toFixed(1) + "s";
+
+      // 3) Lateral Grip:
+      //    Example: 0.8 + (traction * 0.08) + (suspension * 0.02), clamped ≤ 1.5g
+      let grip = 0.8 + traction * 0.08 + suspension * 0.02;
+      grip = Math.min(grip, 1.5);
+      document.getElementById("lateralGrip").textContent = grip.toFixed(2) + "g";
     }
 
     function updateChart() {
-      const mass = parseFloat(document.getElementById('fMass_value').value);
-      const traction = parseFloat(document.getElementById('fTractionCurveMax_value').value);
-      const suspension = parseFloat(document.getElementById('fSuspensionForce_value').value);
-      const brake = parseFloat(document.getElementById('fBrakeForce_value').value);
-      
-      // Calculate new data points
-      const acceleration = 90 - (mass / 1000) * 5 + (traction - 2.0) * 5;
-      const topSpeed = 90 - (mass / 1000) * 2;
-      const braking = 80 + (brake - 0.8) * 15;
-      const cornering = 85 + (traction - 2.0) * 3 + (suspension - 2.0) * 2;
-      const stability = 80 + (suspension - 2.0) * 3;
-      const offRoad = 40 + (suspension - 2.0) * 5;
-      
-      // Update chart data
+      // Read same inputs
+      const mass = parseFloat(
+        document.getElementById("fMass_value").value
+      );
+      const dragCoeff = parseFloat(
+        document.getElementById("initialDrag_value").value
+      );
+      const driveForce = parseFloat(
+        document.getElementById("fInitialDriveForce_value").value
+      );
+      const traction = parseFloat(
+        document.getElementById("fTractionCurveMax_value").value
+      );
+      const suspension = parseFloat(
+        document.getElementById("fSuspensionForce_value").value
+      );
+      const brakeForce = parseFloat(
+        document.getElementById("fBrakeForce_value").value
+      );
+
+      // 1) Top Speed (same as computeTopSpeed)
+      const topSpeed = computeTopSpeed();
+
+      // 2) Acceleration time (same as updatePerformanceStats)
+      let acceleration = mass / (traction * 100) + 2.5;
+      acceleration = Math.max(2, Math.min(acceleration, 15));
+
+      // 3) Braking: (brakeForce × 2.5) + 20, clamped ≤ 100
+      let braking = brakeForce * 2.5 + 20;
+      braking = Math.min(braking, 100);
+
+      // 4) Cornering: (traction × 0.5) + (suspension × 0.3), clamped ≤ 100
+      let cornering = traction * 0.5 + suspension * 0.3;
+      cornering = Math.min(cornering, 100);
+
+      // 5) Stability: suspension × 20, clamped ≤ 100
+      let stability = suspension * 20;
+      stability = Math.min(stability, 100);
+
+      // 6) Off-Road: (traction × 0.2) + (suspension × 0.5), clamped ≤ 100
+      let offRoad = traction * 0.2 + suspension * 0.5;
+      offRoad = Math.min(offRoad, 100);
+
       performanceChart.data.datasets[0].data = [
-        Math.min(acceleration, 99),
-        Math.min(topSpeed, 99),
-        Math.min(braking, 99),
-        Math.min(cornering, 99),
-        Math.min(stability, 99),
-        Math.min(offRoad, 99)
+        acceleration,
+        topSpeed,
+        braking,
+        cornering,
+        stability,
+        offRoad,
       ];
-      
       performanceChart.update();
     }
 
     function updateParamCount() {
-      // Count number of changed parameters
       let changedCount = 0;
-      document.querySelectorAll('input').forEach(input => {
+      document.querySelectorAll("input").forEach((input) => {
         if (input.value !== input.defaultValue) {
           changedCount++;
         }
       });
-      
-      document.getElementById('paramCount').textContent = changedCount;
+      document.getElementById("paramCount").textContent = changedCount;
     }
 
     function updateXMLPreview() {
-      // This would normally update the XML based on input values
-      // For this demo, we'll just update the modified value
-      const massValue = document.getElementById('fMass_value').value;
-      const previewEl = document.getElementById('preview');
-      
-      // Simple find/replace for demo purposes
-      const regex = /<fMass value="[0-9.]+" \/>/;
-      const replacement = `<fMass value="${massValue}.000000" />`;
-      
-      previewEl.textContent = previewEl.textContent.replace(regex, replacement);
+      const previewEl = document.getElementById("preview");
+      let xmlText = previewEl.textContent;
+
+      // 1) <handlingName>
+      const handlingName = document.getElementById("handlingName_value").value;
+      xmlText = xmlText.replace(
+        /<handlingName>.*?<\/handlingName>/,
+        `<handlingName>${handlingName}</handlingName>`
+      );
+
+      // 2) <fMass>
+      const massValue = parseFloat(
+        document.getElementById("fMass_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fMass value="[^"]+" \/>/,
+        `<fMass value="${massValue}" />`
+      );
+
+      // 3) <fdownforcemodifier> (lowercase)
+      const downforceValue = parseFloat(
+        document.getElementById("fdownforcemodifier_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fdownforcemodifier value="[^"]+" \/>/,
+        `<fdownforcemodifier value="${downforceValue}" />`
+      );
+
+      // 4) <fInitialDragCoeff>
+      const dragVal = parseFloat(
+        document.getElementById("initialDrag_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fInitialDragCoeff value="[^"]+" \/>/,
+        `<fInitialDragCoeff value="${dragVal}" />`
+      );
+
+      // 5) <fPercentSubmerged>
+      const submergedVal = parseFloat(
+        document.getElementById("fPercentSubmerged_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fPercentSubmerged value="[^"]+" \/>/,
+        `<fPercentSubmerged value="${submergedVal}" />`
+      );
+
+      // 6) <vecCentreOfMassOffset>
+      const comArr = document
+        .getElementById("vecCentreOfMassOffset_value")
+        .value.trim()
+        .split(" ");
+      if (comArr.length === 3) {
+        const [x, y, z] = comArr.map((v) => parseFloat(v).toFixed(6));
+        xmlText = xmlText.replace(
+          /<vecCentreOfMassOffset x="[^"]+" y="[^"]+" z="[^"]+" \/>/,
+          `<vecCentreOfMassOffset x="${x}" y="${y}" z="${z}" />`
+        );
+      }
+
+      // 7) <vecInertiaMultiplier>
+      const inertiaArr = document
+        .getElementById("vecInertiaMultiplier_value")
+        .value.trim()
+        .split(" ");
+      if (inertiaArr.length === 3) {
+        const [ix, iy, iz] = inertiaArr.map((v) => parseFloat(v).toFixed(6));
+        xmlText = xmlText.replace(
+          /<vecInertiaMultiplier x="[^"]+" y="[^"]+" z="[^"]+" \/>/,
+          `<vecInertiaMultiplier x="${ix}" y="${iy}" z="${iz}" />`
+        );
+      }
+
+      // 8) <fDriveBiasFront>
+      const driveBias = parseFloat(
+        document.getElementById("fDriveBiasFront_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fDriveBiasFront value="[^"]+" \/>/,
+        `<fDriveBiasFront value="${driveBias}" />`
+      );
+
+      // 9) <nInitialDriveGears>
+      const gears = parseInt(
+        document.getElementById("nInitialDriveGears_value").value
+      );
+      xmlText = xmlText.replace(
+        /<nInitialDriveGears value="[^"]+" \/>/,
+        `<nInitialDriveGears value="${gears}" />`
+      );
+
+      // 10) <fInitialDriveForce>
+      const driveF = parseFloat(
+        document.getElementById("fInitialDriveForce_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fInitialDriveForce value="[^"]+" \/>/,
+        `<fInitialDriveForce value="${driveF}" />`
+      );
+
+      // 11) <fDriveInertia>
+      const driveI = parseFloat(
+        document.getElementById("fDriveInertia_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fDriveInertia value="[^"]+" \/>/,
+        `<fDriveInertia value="${driveI}" />`
+      );
+
+      // 12) <fClutchChangeRateScaleUpShift>
+      const clutchUp = parseFloat(
+        document.getElementById("fClutchChangeRateScaleUpShift_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fClutchChangeRateScaleUpShift value="[^"]+" \/>/,
+        `<fClutchChangeRateScaleUpShift value="${clutchUp}" />`
+      );
+
+      // 13) <fClutchChangeRateScaleDownShift>
+      const clutchDown = parseFloat(
+        document.getElementById("fClutchChangeRateScaleDownShift_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fClutchChangeRateScaleDownShift value="[^"]+" \/>/,
+        `<fClutchChangeRateScaleDownShift value="${clutchDown}" />`
+      );
+
+      // 14) <fInitialDriveMaxFlatVel>
+      const maxVel = parseFloat(
+        document.getElementById("fInitialDriveMaxFlatVel_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fInitialDriveMaxFlatVel value="[^"]+" \/>/,
+        `<fInitialDriveMaxFlatVel value="${maxVel}" />`
+      );
+
+      // 15) <fBrakeForce>
+      const brake = parseFloat(
+        document.getElementById("fBrakeForce_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fBrakeForce value="[^"]+" \/>/,
+        `<fBrakeForce value="${brake}" />`
+      );
+
+      // 16) <fBrakeBiasFront>
+      const biasF = parseFloat(
+        document.getElementById("fBrakeBiasFront_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fBrakeBiasFront value="[^"]+" \/>/,
+        `<fBrakeBiasFront value="${biasF}" />`
+      );
+
+      // 17) <fHandBrakeForce>
+      const handBr = parseFloat(
+        document.getElementById("fHandBrakeForce_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fHandBrakeForce value="[^"]+" \/>/,
+        `<fHandBrakeForce value="${handBr}" />`
+      );
+
+      // 18) <fSteeringLock>
+      const steerL = parseFloat(
+        document.getElementById("fSteeringLock_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fSteeringLock value="[^"]+" \/>/,
+        `<fSteeringLock value="${steerL}" />`
+      );
+
+      // 19) <fTractionCurveMax>
+      const tMax = parseFloat(
+        document.getElementById("fTractionCurveMax_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fTractionCurveMax value="[^"]+" \/>/,
+        `<fTractionCurveMax value="${tMax}" />`
+      );
+
+      // 20) <fTractionCurveMin>
+      const tMin = parseFloat(
+        document.getElementById("fTractionCurveMin_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fTractionCurveMin value="[^"]+" \/>/,
+        `<fTractionCurveMin value="${tMin}" />`
+      );
+
+      // 21) <fTractionCurveLateral>
+      const tLat = parseFloat(
+        document.getElementById("fTractionCurveLateral_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fTractionCurveLateral value="[^"]+" \/>/,
+        `<fTractionCurveLateral value="${tLat}" />`
+      );
+
+      // 22) <fTractionSpringDeltaMax>
+      const tSpring = parseFloat(
+        document.getElementById("fTractionSpringDeltaMax_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fTractionSpringDeltaMax value="[^"]+" \/>/,
+        `<fTractionSpringDeltaMax value="${tSpring}" />`
+      );
+
+      // 23) <fLowSpeedTractionLossMult>
+      const lowT = parseFloat(
+        document.getElementById("fLowSpeedTractionLossMult_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fLowSpeedTractionLossMult value="[^"]+" \/>/,
+        `<fLowSpeedTractionLossMult value="${lowT}" />`
+      );
+
+      // 24) <fCamberStiffnesss>
+      const camber = parseFloat(
+        document.getElementById("fCamberStiffnesss_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fCamberStiffnesss value="[^"]+" \/>/,
+        `<fCamberStiffnesss value="${camber}" />`
+      );
+
+      // 25) <fTractionBiasFront>
+      const tBias = parseFloat(
+        document.getElementById("fTractionBiasFront_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fTractionBiasFront value="[^"]+" \/>/,
+        `<fTractionBiasFront value="${tBias}" />`
+      );
+
+      // 26) <fTractionLossMult>
+      const tLoss = parseFloat(
+        document.getElementById("fTractionLossMult_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fTractionLossMult value="[^"]+" \/>/,
+        `<fTractionLossMult value="${tLoss}" />`
+      );
+
+      // 27) <fSuspensionForce>
+      const sForce = parseFloat(
+        document.getElementById("fSuspensionForce_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fSuspensionForce value="[^"]+" \/>/,
+        `<fSuspensionForce value="${sForce}" />`
+      );
+
+      // 28) <fSuspensionCompDamp>
+      const sComp = parseFloat(
+        document.getElementById("fSuspensionCompDamp_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fSuspensionCompDamp value="[^"]+" \/>/,
+        `<fSuspensionCompDamp value="${sComp}" />`
+      );
+
+      // 29) <fSuspensionReboundDamp>
+      const sReb = parseFloat(
+        document.getElementById("fSuspensionReboundDamp_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fSuspensionReboundDamp value="[^"]+" \/>/,
+        `<fSuspensionReboundDamp value="${sReb}" />`
+      );
+
+      // 30) <fSuspensionUpperLimit>
+      const sUp = parseFloat(
+        document.getElementById("fSuspensionUpperLimit_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fSuspensionUpperLimit value="[^"]+" \/>/,
+        `<fSuspensionUpperLimit value="${sUp}" />`
+      );
+
+      // 31) <fSuspensionLowerLimit>
+      const sLow = parseFloat(
+        document.getElementById("fSuspensionLowerLimit_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fSuspensionLowerLimit value="[^"]+" \/>/,
+        `<fSuspensionLowerLimit value="${sLow}" />`
+      );
+
+      // 32) <fSuspensionRaise>
+      const sRaise = parseFloat(
+        document.getElementById("fSuspensionRaise_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fSuspensionRaise value="[^"]+" \/>/,
+        `<fSuspensionRaise value="${sRaise}" />`
+      );
+
+      // 33) <fAntiRollBarForce>
+      const aRB = parseFloat(
+        document.getElementById("fAntiRollBarForce_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fAntiRollBarForce value="[^"]+" \/>/,
+        `<fAntiRollBarForce value="${aRB}" />`
+      );
+
+      // 34) <fRollCentreHeightFront>
+      const rcf = parseFloat(
+        document.getElementById("fRollCentreHeightFront_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fRollCentreHeightFront value="[^"]+" \/>/,
+        `<fRollCentreHeightFront value="${rcf}" />`
+      );
+
+      // 35) <fRollCentreHeightRear>
+      const rcr = parseFloat(
+        document.getElementById("fRollCentreHeightRear_value")
+          ? document.getElementById("fRollCentreHeightRear_value").value
+          : 0
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fRollCentreHeightRear value="[^"]+" \/>/,
+        `<fRollCentreHeightRear value="${rcr}" />`
+      );
+
+      // 36) <fCollisionDamageMult>
+      const cdm = parseFloat(
+        document.getElementById("fCollisionDamageMult_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fCollisionDamageMult value="[^"]+" \/>/,
+        `<fCollisionDamageMult value="${cdm}" />`
+      );
+
+      // 37) <fWeaponDamageMult>
+      const wdm = parseFloat(
+        document.getElementById("fWeaponDamageMult_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fWeaponDamageMult value="[^"]+" \/>/,
+        `<fWeaponDamageMult value="${wdm}" />`
+      );
+
+      // 38) <fDeformationDamageMult>
+      const ddm = parseFloat(
+        document.getElementById("fDeformationDamageMult_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fDeformationDamageMult value="[^"]+" \/>/,
+        `<fDeformationDamageMult value="${ddm}" />`
+      );
+
+      // 39) <fEngineDamageMult>
+      const edm = parseFloat(
+        document.getElementById("fEngineDamageMult_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fEngineDamageMult value="[^"]+" \/>/,
+        `<fEngineDamageMult value="${edm}" />`
+      );
+
+      // 40) <fPetrolTankVolume>
+      const ptv = parseFloat(
+        document.getElementById("fPetrolTankVolume_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fPetrolTankVolume value="[^"]+" \/>/,
+        `<fPetrolTankVolume value="${ptv}" />`
+      );
+
+      // 41) <fOilVolume>
+      const ov = parseFloat(
+        document.getElementById("fOilVolume_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fOilVolume value="[^"]+" \/>/,
+        `<fOilVolume value="${ov}" />`
+      );
+
+      // ────────── SUB HANDLING REPLACEMENTS ──────────
+
+      // 42) <fBackEndPopUpCarImpulseMult>
+      const bCar = parseFloat(
+        document.getElementById("fBackEndPopUpCarImpulseMult_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fBackEndPopUpCarImpulseMult value="[^"]+" \/>/,
+        `<fBackEndPopUpCarImpulseMult value="${bCar}" />`
+      );
+
+      // 43) <fBackEndPopUpBuildingImpulseMult>
+      const bBld = parseFloat(
+        document.getElementById("fBackEndPopUpBuildingImpulseMult_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fBackEndPopUpBuildingImpulseMult value="[^"]+" \/>/,
+        `<fBackEndPopUpBuildingImpulseMult value="${bBld}" />`
+      );
+
+      // 44) <fBackEndPopUpMaxDeltaSpeed>
+      const bMax = parseFloat(
+        document.getElementById("fBackEndPopUpMaxDeltaSpeed_value").value
+      ).toFixed(6);
+      xmlText = xmlText.replace(
+        /<fBackEndPopUpMaxDeltaSpeed value="[^"]+" \/>/,
+        `<fBackEndPopUpMaxDeltaSpeed value="${bMax}" />`
+      );
+
+      // ─────────────────────────────────────────────────────────────────────
+      // Finally, write back into the <pre> block
+      // ─────────────────────────────────────────────────────────────────────
+      previewEl.textContent = xmlText;
     }
 
     function resetAllValues() {
-      document.querySelectorAll('input').forEach(input => {
+      document.querySelectorAll("input").forEach((input) => {
         input.value = input.defaultValue;
       });
-      
       updatePerformanceStats();
+      updateChart();
       updateXMLPreview();
       updateParamCount();
-      
-      showNotification('All values reset to default', 'success');
+      showNotification("All values reset to default", "success");
     }
 
     function resetCurrentSection() {
-      const activeTab = document.querySelector('.tab.active');
+      const activeTab = document.querySelector(".tab.active");
       if (activeTab) {
-        const tabId = activeTab.getAttribute('data-tab');
-        document.querySelectorAll(`#${tabId} input`).forEach(input => {
-          input.value = input.defaultValue;
-        });
-        
+        const tabId = activeTab.getAttribute("data-tab");
+        document
+          .querySelectorAll(`#${tabId} input`)
+          .forEach((input) => {
+            input.value = input.defaultValue;
+          });
         updatePerformanceStats();
+        updateChart();
         updateXMLPreview();
         updateParamCount();
-        
-        showNotification(`Reset ${activeTab.textContent} section`, 'success');
+        showNotification(`Reset ${activeTab.textContent} section`, "success");
       }
     }
 
     function exportMetaFile() {
-      const fileName = 'handling.meta';
-      const content = document.getElementById('preview').textContent;
-      
-      // Create download link
-      const blob = new Blob([content], { type: 'text/xml' });
+      const fileName = "handling.meta";
+      const content = document.getElementById("preview").textContent;
+      const blob = new Blob([content], { type: "text/xml" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = fileName;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
-      showNotification(`Exported ${fileName} successfully`, 'success');
+      showNotification(`Exported ${fileName} successfully`, "success");
     }
 
     function simulateUpload() {
-      document.getElementById('connectionStatus').innerHTML = 'Uploading to server...';
-      
+      document.getElementById("connectionStatus").innerHTML =
+        "Uploading to server...";
       setTimeout(() => {
-        document.getElementById('connectionStatus').innerHTML = 'File uploaded successfully!';
-        showNotification('Handling data uploaded to server', 'success');
+        document.getElementById(
+          "connectionStatus"
+        ).innerHTML = "File uploaded successfully!";
+        showNotification("Handling data uploaded to server", "success");
       }, 1500);
     }
 
     function openSimulator() {
-      showNotification('Opening vehicle simulator...', 'info');
+      showNotification("Opening vehicle simulator...", "info");
     }
 
     function openComparison() {
-      showNotification('Opening version comparison tool...', 'info');
+      showNotification("Opening version comparison tool...", "info");
     }
 
     function expandPreview() {
-      const previewEl = document.getElementById('preview');
-      previewEl.classList.toggle('expanded');
-      
-      if (previewEl.classList.contains('expanded')) {
-        previewEl.style.position = 'fixed';
-        previewEl.style.top = '0';
-        previewEl.style.left = '0';
-        previewEl.style.width = '100%';
-        previewEl.style.height = '100%';
-        previewEl.style.zIndex = '1000';
+      const previewEl = document.getElementById("preview");
+      previewEl.classList.toggle("expanded");
+      if (previewEl.classList.contains("expanded")) {
+        previewEl.style.position = "fixed";
+        previewEl.style.top = "0";
+        previewEl.style.left = "0";
+        previewEl.style.width = "100%";
+        previewEl.style.height = "100%";
+        previewEl.style.zIndex = "1000";
       } else {
-        previewEl.style.position = '';
-        previewEl.style.top = '';
-        previewEl.style.left = '';
-        previewEl.style.width = '';
-        previewEl.style.height = '';
-        previewEl.style.zIndex = '';
+        previewEl.style.position = "";
+        previewEl.style.top = "";
+        previewEl.style.left = "";
+        previewEl.style.width = "";
+        previewEl.style.height = "";
+        previewEl.style.zIndex = "";
       }
     }
 
     function exportChartImage() {
-      const link = document.createElement('a');
-      link.download = 'handling-performance.png';
-      link.href = document.getElementById('performanceChart').toDataURL('image/png');
+      const link = document.createElement("a");
+      link.download = "handling-performance.png";
+      link.href = document
+        .getElementById("performanceChart")
+        .toDataURL("image/png");
       link.click();
-      
-      showNotification('Performance chart exported as PNG', 'success');
+      showNotification("Performance chart exported as PNG", "success");
     }
 
     function showNotification(message, type) {
-      const notification = document.createElement('div');
+      const notification = document.createElement("div");
       notification.className = `notification ${type}`;
       notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <i class="fas fa-${
+          type === "success"
+            ? "check-circle"
+            : type === "error"
+            ? "exclamation-circle"
+            : "info-circle"
+        }"></i>
         ${message}
       `;
-      
       document.body.appendChild(notification);
-      
       setTimeout(() => {
-        notification.classList.add('show');
+        notification.classList.add("show");
       }, 10);
-      
       setTimeout(() => {
-        notification.classList.remove('show');
+        notification.classList.remove("show");
         setTimeout(() => {
           document.body.removeChild(notification);
         }, 300);
       }, 3000);
     }
 
-    // Add notification styles
-    const style = document.createElement('style');
-    style.innerHTML = `
+    // Notification CSS (appended dynamically)
+    const notificationStyle = document.createElement("style");
+    notificationStyle.innerHTML = `
       .notification {
         position: fixed;
         top: 20px;
@@ -1084,54 +2181,48 @@
         transition: transform 0.3s ease-out;
         z-index: 10000;
       }
-      
+
       .notification.show {
         transform: translateX(0);
       }
-      
+
       .notification.success {
         border-left: 4px solid var(--success);
       }
-      
+
       .notification.info {
         border-left: 4px solid var(--accent-primary);
       }
-      
+
       .notification.error {
         border-left: 4px solid var(--danger);
       }
     `;
-    document.head.appendChild(style);
+    document.head.appendChild(notificationStyle);
 
-    // Add ripple effect to buttons
-    document.querySelectorAll('.btn').forEach(button => {
-      button.addEventListener('click', function(e) {
-        // Create ripple effect
-        const ripple = document.createElement('span');
-        ripple.classList.add('ripple');
+    // Ripple effect on buttons
+    document.querySelectorAll(".btn").forEach((button) => {
+      button.addEventListener("click", function (e) {
+        const ripple = document.createElement("span");
+        ripple.classList.add("ripple");
         this.appendChild(ripple);
-        
-        // Get click position
+
         const rect = this.getBoundingClientRect();
         const size = Math.max(rect.width, rect.height);
-        const x = e.clientX - rect.left - size/2;
-        const y = e.clientY - rect.top - size/2;
-        
-        // Position ripple
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
         ripple.style.width = ripple.style.height = `${size}px`;
         ripple.style.left = `${x}px`;
         ripple.style.top = `${y}px`;
-        
-        // Remove ripple after animation
+
         setTimeout(() => {
           ripple.remove();
         }, 600);
       });
     });
 
-    // Add ripple effect style
-    const rippleStyle = document.createElement('style');
-    rippleStyle.innerHTML = `
+    const rippleCSS = document.createElement("style");
+    rippleCSS.innerHTML = `
       .ripple {
         position: absolute;
         border-radius: 50%;
@@ -1139,7 +2230,7 @@
         transform: scale(0);
         animation: ripple 0.6s linear;
       }
-      
+
       @keyframes ripple {
         to {
           transform: scale(4);
@@ -1147,7 +2238,7 @@
         }
       }
     `;
-    document.head.appendChild(rippleStyle);
+    document.head.appendChild(rippleCSS);
   </script>
 </body>
 </html>
