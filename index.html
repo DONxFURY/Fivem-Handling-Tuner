@@ -945,6 +945,17 @@
               step="0.01"
             />
           </div>
+
+          <!-- AI Handling (editable) -->
+          <div class="form-group">
+            <label><i class="fas fa-robot"></i> AIHandling</label>
+            <input
+              type="text"
+              id="AIHandling_value"
+              value="SPORTS_CAR"
+            />
+          </div>
+
         </div>
       </div>
 
@@ -2115,7 +2126,7 @@
 
       // 29) <fSuspensionReboundDamp>
       const sReb = parseFloat(
-        document.getElementById("fSuspensionReboundDamp_value").value || "0"
+        document.getElementById("fSuspensionReboundDamp_value")?.value || "0"
       ).toFixed(6);
       xmlText = xmlText.replace(
         /<fSuspensionReboundDamp value="[^"]+" \/>/,
@@ -2169,7 +2180,7 @@
 
       // 35) <fRollCentreHeightRear>
       const rcr = parseFloat(
-        (document.getElementById("fRollCentreHeightRear_value")?.value || "0")
+        document.getElementById("fRollCentreHeightRear_value")?.value || "0"
       ).toFixed(6);
       xmlText = xmlText.replace(
         /<fRollCentreHeightRear value="[^"]+" \/>/,
@@ -2257,6 +2268,13 @@
       xmlText = xmlText.replace(
         /<fBackEndPopUpMaxDeltaSpeed value="[^"]+" \/>/,
         `<fBackEndPopUpMaxDeltaSpeed value="${bMax}" />`
+      );
+
+      // ────────── <AIHandling> Replacement ──────────
+      const aiHandling = document.getElementById("AIHandling_value").value || "";
+      xmlText = xmlText.replace(
+        /<AIHandling>.*?<\/AIHandling>/,
+        `<AIHandling>${aiHandling}</AIHandling>`
       );
 
       // ─────────────────────────────────────────────────────────────────────
@@ -2347,6 +2365,23 @@
 
     function updateVersionCount() {
       document.getElementById("versionCount").textContent = versionHistory.length;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // “Export Chart” (image) now works:
+    // ────────────────────────────────────────────────────────────────────────────
+    function exportChartImage() {
+      // Grab the underlying <canvas> of Chart.js
+      const chartCanvas = document.getElementById("performanceChart");
+      const imageURL = chartCanvas.toDataURL("image/png");
+
+      // Create a temporary <a> to download
+      const link = document.createElement("a");
+      link.href = imageURL;
+      link.download = "performance_chart.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
     // ────────────────────────────────────────────────────────────────────────────
